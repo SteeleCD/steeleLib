@@ -25,6 +25,7 @@ export(logit)
 export(invlogit)
 export(betaMean)
 export(betaVar)
+export(runHclust)
 
 importFrom('ChAMP','champ.load','champ.norm','champ.SVD',
 	'champ.CNA','champ.DMR','champ.MVP','champ.runCombat')
