@@ -1,0 +1,43 @@
+#useDynLib(steeleLib)
+export(assignFolders)
+export(champToGistic)
+export(segToMarkers)
+export(combineFiles)
+#export(runConumee)
+export(getMarkers)
+export(plotVolcano)
+export(install.bioc)
+export(kmeansAIC)
+export(mychamp.CNA)
+export(runMyChamp)
+export(runPCA)
+export(plotPCA)
+export(plotByChrom)
+export(plotAbber)
+export(highlightInds)
+export(runHCPC)
+export(runMinfi)
+export(runDMR)
+export(fitKmeans)
+export(fitHclust)
+export(createSegFromConumee)
+export(logit)
+export(invlogit)
+export(betaMean)
+export(betaVar)
+
+importFrom('ChAMP','champ.load','champ.norm','champ.SVD',
+	'champ.CNA','champ.DMR','champ.MVP','champ.runCombat')
+importFrom('conumee','CNV.create_anno','CNV.load','CNV.fit',
+	'CNV.bin','CNV.detail','CNV.segment','CNV.genomeplot')
+importFrom('minfi','read.metharray.sheet','read.metharray.exp',
+	'preprocessRaw','mapToGenome','qcReport',
+	'preprocessFunnorm','getM','getBeta','dropLociWithSnps',
+	'pData','dmpFinder','bumphunter')
+importFrom('GenomicRanges','granges')
+importFrom('stats','model.matrix')
+importFrom('sva','sva')
+importFrom('doParallel','registerDoParallel')
+importFrom('copynumber','plotAberration')
+importFrom('FactoMineR','HCPC')
+

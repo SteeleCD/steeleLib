@@ -1,0 +1,11 @@
+Package: steeleLib 
+Title: Useful functions for methylation analysis
+Description: Useful functions for methylation analysis.
+Depends: R (>= 3.1.0), gtools, FactoMineR, sva, GenomicRanges, ChAMP, minfi, conumee, doParallel, copynumber
+Suggests: limma, DNAcopy 
+Imports: FactoMineR, sva, GenomicRanges, ChAMP, minfi, conumee, doParallel, copynumber
+Version: 0.1.0
+Date: 12/07/2016
+Author: Christopher Steele
+Maintainer: Christopher Steele <steelecd2110@gmail.com>
+License: GPL-3
