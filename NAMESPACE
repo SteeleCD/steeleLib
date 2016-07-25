@@ -37,7 +37,7 @@ importFrom('minfi','read.metharray.sheet','read.metharray.exp',
 	'preprocessRaw','mapToGenome','qcReport',
 	'preprocessFunnorm','getM','getBeta','dropLociWithSnps',
 	'pData','dmpFinder','bumphunter','detectionP','getManifest',
-	'getAnnotation','dropLociWithSnps')
+	'getAnnotation')
 importFrom('GenomicRanges','granges')
 importFrom('stats','model.matrix')
 importFrom('sva','sva','ComBat')
