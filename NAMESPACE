@@ -26,6 +26,8 @@ export(invlogit)
 export(betaMean)
 export(betaVar)
 export(runHclust)
+export(refactor)
+export(methPipeline)
 
 importFrom('ChAMP','champ.load','champ.norm','champ.SVD',
 	'champ.CNA','champ.DMR','champ.MVP','champ.runCombat')
@@ -34,10 +36,11 @@ importFrom('conumee','CNV.create_anno','CNV.load','CNV.fit',
 importFrom('minfi','read.metharray.sheet','read.metharray.exp',
 	'preprocessRaw','mapToGenome','qcReport',
 	'preprocessFunnorm','getM','getBeta','dropLociWithSnps',
-	'pData','dmpFinder','bumphunter')
+	'pData','dmpFinder','bumphunter','detectionP','getManifest',
+	'getAnnotation','dropLociWithSnps')
 importFrom('GenomicRanges','granges')
 importFrom('stats','model.matrix')
-importFrom('sva','sva')
+importFrom('sva','sva','ComBat')
 importFrom('doParallel','registerDoParallel')
 importFrom('copynumber','plotAberration')
 importFrom('FactoMineR','HCPC')
