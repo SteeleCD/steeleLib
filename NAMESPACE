@@ -44,4 +44,4 @@ importFrom('sva','sva','ComBat')
 importFrom('doParallel','registerDoParallel')
 importFrom('copynumber','plotAberration')
 importFrom('FactoMineR','HCPC')
-
+import('CopyNumber450kData')
