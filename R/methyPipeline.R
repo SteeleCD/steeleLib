@@ -4,6 +4,31 @@ methPipeline = function(dataDir,outDir=getwd(),nCells=5,legendloc="topleft",plot
 sheet = read.metharray.sheet(dataDir)
 # read idats based on sample sheet
 RGset = read.metharray.exp(targets=sheet)
+# QC 
+phenoData = pData(RGset)
+Mset = preprocessRaw(RGset)
+pdf(paste0(outDir,"QCplot.pdf"))
+plotQC(getQC(Mset))
+dev.off()
+pdf(paste0(outDir,"densityPlot.pdf"))
+densityPlot(Mset,sampGroups=phenoData$Sample_Group)
+dev.off()
+pdf(paste0(outDir,"densityBeanPlot.pdf"))
+densityBeanPlot(Mset,sampGroups=phenoData$Sample_Group)
+dev.off()
+pdf(paste0(outDir,"controlProbes.pdf"))
+controlStripPlot(RGset)
+dev.off()
+# sex
+ratioSet = ratioConvert(Mset,what="both",keepCN=TRUE)
+Gset = mapToGenome(ratioSet)
+pdf(paste0(outDir,"sexPlot.pdf"))
+plotSex(getSex(Gset,cutoff=-2))
+dev.off()
+rm(phenoData)
+rm(Mset)
+rm(ratioSet)
+rm(Gset)
 # detection p values
 qualCut = 0.01
 detP = detectionP(RGset)
