@@ -15,7 +15,7 @@ runPCA = function(file=NULL,data=NULL,fileOut=NULL)
 	return(pca)
 	}
 
-plotPCA = function(pca,fileName=NULL,outDir,groups,colours=NULL,colFun=NULL,subset=NULL,arrows=TRUE,nArrows=10,xlim=NULL,ylim=NULL,PCs=c(1,2),amplifyArrows=4)
+plotPCA = function(pca,fileName=NULL,outDir,groups,colours=NULL,colFun=NULL,subset=NULL,arrows=TRUE,nArrows=10,xlim=NULL,ylim=NULL,PCs=c(1,2),amplifyArrows=4,legendloc="topleft")
 	{
 	if(!is.null(subset))
 		{
@@ -36,12 +36,12 @@ plotPCA = function(pca,fileName=NULL,outDir,groups,colours=NULL,colFun=NULL,subs
 	if(is.null(ylim)) ylim=range(pca$x[,PCs[2]])
 	if(!is.null(fileName)) pdf(paste0(outDir,"/",fileName))
 	plot(pca$x[,c(PCs[1],PCs[2])],col=colours[groups],xlim=xlim,ylim=ylim)
-	if(!is.null(arrows))
+	if(arrows)
 	{
 	  arrowData = pcaArrows(pca,x=paste0("PC",PCs[1]),y=paste0("PC",PCs[2]),ntop=nArrows)
 	  arrows(x0=rep(0,times=nArrows),y0=rep(0,times=nArrows),x1=arrowData$x*amplifyArrows,y1=arrowData$y*amplifyArrows)
 	}
-	legend('topleft', legend = levels(groups), col = colours, cex = 0.8, pch = 1)
+	legend(legendloc, legend = levels(groups), col = colours, cex = 0.8, pch = 1)
 	if(!is.null(fileName)) dev.off()
 }
 

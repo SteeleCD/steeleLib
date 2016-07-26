@@ -1,5 +1,5 @@
 # run heirarchical clustering
-runHclust = function(data,distMeth="euclidean",clustMeth="ward.D",doGroups=FALSE,nGroups=5,groups=NULL,file=NULL)
+runHclust = function(data,distMeth="euclidean",clustMeth="ward.D",doGroups=FALSE,nGroups=5,groups=NULL,file=NULL,plotcolours=c("green","red","black","blue","cyan"))
 	{
 	# distance and hclust
 	distance = dist(data,method=distMeth)
@@ -10,7 +10,7 @@ runHclust = function(data,distMeth="euclidean",clustMeth="ward.D",doGroups=FALSE
 		groups = cutree(clusters,nGroups)
 		}
 	# get colour for label
-	getCol = function(label,colGroups=groups,colours=c("green","red","black","blue","cyan"))
+	getCol = function(label,colGroups=groups,colours=plotcolours)
 		{
   		index = which(sapply(colGroups,FUN=function(x) label%in%x))
   		return(colours[index])
