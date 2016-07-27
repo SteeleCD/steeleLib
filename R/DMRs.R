@@ -30,7 +30,10 @@ plotDMR = function(betas,dmrs,index,manifest,flank=10000,groupIndices,doInvLogit
 	# inverse logit for Ms
 	if(doInvLogit) region$betas = invlogit(region$betas)
 	# plot
-	plot(pos1,region$betas[,groupIndices[[1]]],ylim=range(region$betas),xlab="Position",ylab=ifelse(doInvLogit,"Beta","M"),main=paste0("Chromosome ",dmrs[index,"chr"]))
+	plot(pos1,region$betas[,groupIndices[[1]]],ylim=range(region$betas),xlab="Position",ylab=ifelse(doInvLogit,"Beta","M"),main=paste0("Chromosome ",dmrs[index,"chr"]),col="blue")
 	points(pos2,region$betas[,groupIndices[[2]]],col="red")
 	abline(v=c(dmrs[index,"end"],dmrs[index,"start"]),lty=2)
+	toOrder = order(pos1[,1])
+	lines(pos1[toOrder,1],rowMeans(region$betas[,groupIndices[[1]]])[toOrder],col="blue",lwd=2)
+	lines(pos2[toOrder,1],rowMeans(region$betas[,groupIndices[[2]]])[toOrder],col="red",lwd=2)
 	}
