@@ -61,7 +61,7 @@ getRegion = function(betas,chr,start,end,manifest,flank=10000)
 	}
 
 # function to plot DMRs with overlapping genes displayed (if any)
-plotDMR = function(betas,dmrs,index,manifest,flank=10000,groupIndices,doInvLogit=TRUE)
+plotDMR = function(betas,dmrs,index,manifest,flank=10000,groupIndices,doInvLogit=TRUE,xOffset=10)
 	{
 	# get values in region
 	region = steeleLib:::getRegion(betas,dmrs[index,"chr"],dmrs[index,"start"],dmrs[index,"end"],manifest,flank)
@@ -91,18 +91,39 @@ plotDMR = function(betas,dmrs,index,manifest,flank=10000,groupIndices,doInvLogit
 	#lines(pos1[toOrder,1],rowMeans(region$betas[,groupIndices[[1]]])[toOrder],col="blue",lwd=2)
 	#lines(pos2[toOrder,1],rowMeans(region$betas[,groupIndices[[2]]])[toOrder],col="red",lwd=2)
 	# plot genes
-	plot(pos1[toOrder,1],smooth(log(rowMeans(region$betas[,groupIndices[[1]]])[toOrder]/rowMeans(region$betas[,groupIndices[[2]]])[toOrder])),type="l",col="black",lwd=2,xlab=XLAB,ylab="log(ratio)",main=paste0("Chromosome ",dmrs[index,"chr"]),xaxt=XAXT)
+	positions = pos1[toOrder,1]
+	ratios = smooth(log(rowMeans(region$betas[,groupIndices[[1]]])[toOrder]/rowMeans(region$betas[,groupIndices[[2]]])[toOrder]))
+	plot(positions,ratios,type="l",col="black",lwd=2,xlab=XLAB,ylab="log(ratio)",main=paste0("Chromosome ",dmrs[index,"chr"]),xaxt=XAXT)
 	abline(h=0,lty=2)
 	abline(v=c(dmrs[index,"end"],dmrs[index,"start"]),lty=2)
 	if(length(region$overlaps$geneStart)>0)
 		{
 		par(mar=c(5,4,0,2))
-		yVals = 0:length(region$overlaps$geneStart)
-		plot(NA,xlim=range(pos1),ylim=range(yVals),yaxt="n",ylab=NA,xlab="Position")
+		yVals = 1:length(region$overlaps$geneStart)
+		YLIM = range(yVals)
+		YLIM[1] = YLIM[1]-1
+		yVals = yVals-1
+		if(length(xOffset)==1) xOffset = rep(xOffset,times=length(region$overlaps$geneStart)) 
+		plot(NA,xlim=range(pos1),ylim=YLIM,yaxt="n",ylab=NA,xlab="Position")
 		for(i in 1:length(yVals))
 			{
-			polygon(c(region$overlaps$geneStart[i],region$overlaps$geneStart[i],region$overlaps$geneEnd[i],region$overlaps$geneEnd[i]),c(yVals[i]+0.25,yVals[i]+0.75,yVals[i]+0.75,yVals[i]+0.25),col="black")
-			text(x=region$overlaps$geneEnd[i]+500,y=yVals[i]+0.5,region$overlaps$geneName[i],cex=1.5)
+			xRange = range(positions)
+			polygon(c(region$overlaps$geneStart[i],region$overlaps$geneStart[i],region$overlaps$geneEnd[i],region$overlaps$geneEnd[i]),c(yVals[i]+0.35,yVals[i]+0.65,yVals[i]+0.65,yVals[i]+0.35),col="black")
+			if(region$overlaps$geneStart[i]<xRange[1]&region$overlaps$geneEnd[i]>xRange[2])
+				{
+				xText = mean(xRange)
+				yText = yVals[i]+0.75
+				} else if(region$overlaps$geneStart[i]<xRange[1]) {
+				xText = region$overlaps$geneEnd[i]+abs(diff(xRange))/xOffset[i]
+				yText = yVals[i]+0.5
+				} else if(region$overlaps$geneEnd[i]>xRange[2]) {
+				xText = region$overlaps$geneStart[i]-abs(diff(xRange))/xOffset[i]
+				yText = yVals[i]+0.5
+				} else {
+				xText = region$overlaps$geneEnd[i]+abs(diff(xRange))/xOffset[i]
+				yText = yVals[i]+0.5
+				}
+			text(x=xText,y=yText,region$overlaps$geneName[i])
 			}
 		}
 	}
