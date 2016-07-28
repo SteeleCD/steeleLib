@@ -28,6 +28,7 @@ export(betaVar)
 export(runHclust)
 export(refactor)
 export(methPipeline)
+export(plotDMR)
 
 importFrom('ChAMP','champ.load','champ.norm','champ.SVD',
 	'champ.CNA','champ.DMR','champ.MVP','champ.runCombat')
