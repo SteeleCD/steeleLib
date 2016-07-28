@@ -19,9 +19,17 @@ getOverlapGenes = function(chr,start,end)
 	overlap = subsetByOverlaps(genesRanges,gRanges); overlap
 	geneStart = overlap@ranges@start
 	geneEnd = overlap@ranges@start+overlap@ranges@width
+	OVERLAP <<- overlap
 	# get gene names
-	genes = as.data.frame(org.Hs.egSYMBOL)
-	DMRgenes = genes[which(genes$gene_id%in%overlap$gene_id),]$symbol
+	library(org.Hs.eg.db)
+	INFO <<- org.Hs.egSYMBOL
+	print(str(org.Hs.egSYMBOL))
+	unmapped = org.Hs.eg.db::org.Hs.egSYMBOL
+	mapped = mappedkeys(unmapped)
+	genes = unlist(as.list(unmapped[mapped]))
+	GENES <<- genes
+	DMRgenes = genes[which(names(genes)%in%overlap$gene_id)]
+	DMRGENES <<- DMRgenes
 	# return
 	return(list(geneStart=geneStart,geneEnd=geneEnd,geneName=DMRgenes))
 	}
@@ -56,7 +64,7 @@ getRegion = function(betas,chr,start,end,manifest,flank=10000)
 plotDMR = function(betas,dmrs,index,manifest,flank=10000,groupIndices,doInvLogit=TRUE)
 	{
 	# get values in region
-	region = getRegion(betas,dmrs[index,"chr"],dmrs[index,"start"],dmrs[index,"end"],manifest,flank)
+	region = steeleLib:::getRegion(betas,dmrs[index,"chr"],dmrs[index,"start"],dmrs[index,"end"],manifest,flank)
 	# get positions
 	pos1 = matrix(region$pos,ncol=length(groupIndices[[1]]),nrow=nrow(region$betas))
 	pos2 = matrix(region$pos,ncol=length(groupIndices[[2]]),nrow=nrow(region$betas))
@@ -76,18 +84,21 @@ plotDMR = function(betas,dmrs,index,manifest,flank=10000,groupIndices,doInvLogit
 		XAXT = NULL
 		}
 	# plot DMR
-	plot(pos1,region$betas[,groupIndices[[1]]],ylim=range(region$betas),xlab=XLAB,ylab=ifelse(doInvLogit,"Beta","M"),main=paste0("Chromosome ",dmrs[index,"chr"]),col="blue",xaxt=XAXT)
-	points(pos2,region$betas[,groupIndices[[2]]],col="red")
-	abline(v=c(dmrs[index,"end"],dmrs[index,"start"]),lty=2)
+	#plot(pos1,region$betas[,groupIndices[[1]]],ylim=range(region$betas),xlab=XLAB,ylab=ifelse(doInvLogit,"Beta","M"),main=paste0("Chromosome ",dmrs[index,"chr"]),col="blue",xaxt=XAXT)
+	#points(pos2,region$betas[,groupIndices[[2]]],col="red")
+	#abline(v=c(dmrs[index,"end"],dmrs[index,"start"]),lty=2)
 	toOrder = order(pos1[,1])
-	lines(pos1[toOrder,1],rowMeans(region$betas[,groupIndices[[1]]])[toOrder],col="blue",lwd=2)
-	lines(pos2[toOrder,1],rowMeans(region$betas[,groupIndices[[2]]])[toOrder],col="red",lwd=2)
+	#lines(pos1[toOrder,1],rowMeans(region$betas[,groupIndices[[1]]])[toOrder],col="blue",lwd=2)
+	#lines(pos2[toOrder,1],rowMeans(region$betas[,groupIndices[[2]]])[toOrder],col="red",lwd=2)
 	# plot genes
+	plot(pos1[toOrder,1],smooth(log(rowMeans(region$betas[,groupIndices[[1]]])[toOrder]/rowMeans(region$betas[,groupIndices[[2]]])[toOrder])),type="l",col="black",lwd=2,xlab=XLAB,ylab="log(ratio)",main=paste0("Chromosome ",dmrs[index,"chr"]),xaxt=XAXT)
+	abline(h=0,lty=2)
+	abline(v=c(dmrs[index,"end"],dmrs[index,"start"]),lty=2)
 	if(length(region$overlaps$geneStart)>0)
 		{
 		par(mar=c(5,4,0,2))
 		yVals = 0:length(region$overlaps$geneStart)
-		plot(NA,xlim=range(pos1),ylim=yVals,yaxt="n",ylab=NA,xlab="Position")
+		plot(NA,xlim=range(pos1),ylim=range(yVals),yaxt="n",ylab=NA,xlab="Position")
 		for(i in 1:length(yVals))
 			{
 			polygon(c(region$overlaps$geneStart[i],region$overlaps$geneStart[i],region$overlaps$geneEnd[i],region$overlaps$geneEnd[i]),c(yVals[i]+0.25,yVals[i]+0.75,yVals[i]+0.75,yVals[i]+0.25),col="black")
