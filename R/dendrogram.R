@@ -8,6 +8,7 @@ runHclust = function(data,distMeth="euclidean",clustMeth="ward.D",doGroups=FALSE
 	if(doGroups)
 		{
 		groups = cutree(clusters,nGroups)
+		groups = sapply(unique(groups),FUN=function(x) names(groups)[which(groups==x)])
 		}
 	# get colour for label
 	getCol = function(label,colGroups=groups,colours=plotcolours)
@@ -33,7 +34,7 @@ runHclust = function(data,distMeth="euclidean",clustMeth="ward.D",doGroups=FALSE
 	if(!is.null(file)) pdf(file)
 	plot(dend)
 	if(!is.null(file)) dev.off()
-	return(clusters)
+	return(list(clusters=clusters,dend=dend))
 	}
 
 

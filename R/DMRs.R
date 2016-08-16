@@ -57,7 +57,7 @@ getRegion = function(betas,chr,start,end,manifest,flank=10000)
 	# get overlapping genes
 	overlapGenes = getOverlapGenes(chr,region[1],region[2])
 	# return
-	return(list(betas=betas,pos=info,overlaps=overlapGenes))
+	return(list(betas=betas,pos=info,overlaps=overlapGenes,manRegion=manifest))
 	}
 
 # function to plot DMRs with overlapping genes displayed (if any)
