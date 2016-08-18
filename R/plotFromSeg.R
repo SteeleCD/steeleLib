@@ -89,11 +89,12 @@ plotByChrom = function(segFile=NULL,segObj=NULL,dataDir,outDir,fileName='segsByC
 	dev.off()
 	}
 	
-plotAbber = function(segFile=NULL,segObj=NULL,dataDir,outDir,fileName="abberationPlot.pdf")
+plotAbber = function(segFile=NULL,segObj=NULL,dataDir,outDir,fileName="abberationPlot.pdf",HEAD=TRUE,logCN=TRUE,thresh=0.2)
 	{
 	library(copynumber)
-	if(!is.null(segFile)) data = read.table(paste0(dataDir,"/",segFile),head=TRUE,sep="\t")
+	if(!is.null(segFile)) data = read.table(paste0(dataDir,"/",segFile),head=HEAD,sep="\t")
 	if(!is.null(segObj)) data = segObj
+	if(!logCN) data[,6] = log2(data[,6])-1
 	# plot by chms
 	chms = unique(data[,2])
 	individual = unique(data[,1])
@@ -102,7 +103,7 @@ plotAbber = function(segFile=NULL,segObj=NULL,dataDir,outDir,fileName="abberatio
 	data = cbind(data[,1:2],rep("q",times=nrow(data)),data[,3:ncol(data)])
 	colnames(data) = c("sampleID","chrom","arm","start.pos","end.pos","n.probes","logR.mean")
 	pdf(paste0(outDir,'/',fileName))
-	plotAberration(data,thres.gain=0.2)
+	plotAberration(data,thres.gain=thresh)
 	dev.off()
 	}
 
