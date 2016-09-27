@@ -21,7 +21,7 @@ sequenzaToGistic = function(segFiles,sampleNames=NULL,outDir,outFile=NULL)
 	for(i in 1:length(segFiles))
 		{
 		data = read.table(segFiles[i],head=TRUE,sep="\t",as.is=TRUE)
-		data = data[,c("chromsome","start.pos","end.pos","N.BAF","CNt")]
+		data = data[,c("chromosome","start.pos","end.pos","N.BAF","CNt")]
 		data[,"CNt"] = log2(data[,"CNt"])-1
 		data = cbind(rep(sampleNames[i],times=nrow(data)),data)
 		colnames(data) = c("Sample","Chromosome","Start Position","End Position","Num markers","Seg.CN")
