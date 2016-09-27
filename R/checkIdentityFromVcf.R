@@ -38,6 +38,17 @@ checkIdentity = function(dataT,dataN,SNPdata)
 	matching/(matching+nonmatching)
 	}
 
-
+load.candidate.SNPs = function(file=NULL)
+	{
+	if(is.null(file))
+		{
+		tmpEnv = new.env()
+		data(list="candidateSnps",package="steeleLib",envir=tmpEnv)
+		return(tmpEnv[["candidateSnps"]])
+		} else {
+		data = read.table(file)
+		return(data)
+		}
+	}
 
 
