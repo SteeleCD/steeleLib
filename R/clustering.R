@@ -1,8 +1,13 @@
 # run heirarchical clustering
-runHclust = function(data,distMeth="euclidean",clustMeth="ward.D",doGroups=FALSE,nGroups=5,groups=NULL,file=NULL,plotcolours=c("green","red","black","blue","cyan"))
+runHclust = function(data,distMethFun=NULL,distMeth="euclidean",clustMeth="ward.D2",doGroups=FALSE,nGroups=5,groups=NULL,file=NULL,plotcolours=c("green","red","black","blue","cyan"))
 	{
 	# distance and hclust
-	distance = dist(data,method=distMeth)
+	if(is.null(distMethFun))
+		{
+		distance = dist(data,method=distMeth)
+		} else {
+		distance = distMethFun(data)
+		}
 	clusters = hclust(distance,method=clustMeth)
 	# get groups
 	if(doGroups)
@@ -36,5 +41,31 @@ runHclust = function(data,distMeth="euclidean",clustMeth="ward.D",doGroups=FALSE
 	if(!is.null(file)) dev.off()
 	return(list(clusters=clusters,dend=dend))
 	}
+
+# K means AIC
+kmeansAIC = function(fit)
+	{
+	m = ncol(fit$centers)
+	n = length(fit$cluster)
+	k = nrow(fit$centers)
+	D = fit$tot.withinss
+	return(data.frame(AIC = D + 2*m*k,
+                  BIC = D + log(n)*m*k))
+	}
+
+# hclust followed by k means
+hclustKmeans = function(distance,method="ward.D2",nGroups=4)
+	{
+	# heirarchical clustering
+	clusters = hclust(distance,method)
+	# hclust groups
+	groups = cutree(clusters,nGroups)
+	# centers of heirarchical clusters
+	clust.centers = aggregate(pca$x,list(groups),mean)[,-1]
+	# k means starting from HC centers
+	KM = kmeans(pca$x,centers=clust.centers)
+	return(KM)
+	}
+
 
 

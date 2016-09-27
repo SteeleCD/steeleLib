@@ -1,4 +1,4 @@
-runMyChamp = function(dataDir,outDir,sampleSheet="Pillay EPIC samplesheet 280516.csv",studyInfo="studyInfo_2.txt",mychampFile="/home/chris/Dropbox/PostDoc/methylation/Rscripts/myCHAMP.R",min.width=2,nperm=10000,arrayType="EPIC",infoFactor=c(),controlGroup='C')
+champPipeline = function(dataDir,outDir,sampleSheet="Pillay EPIC samplesheet 280516.csv",studyInfo="studyInfo_2.txt",mychampFile="/home/chris/Dropbox/PostDoc/methylation/Rscripts/myCHAMP.R",min.width=2,nperm=10000,arrayType="EPIC",infoFactor=c(),controlGroup='C')
 	{
 	library(ChAMP)
 	# load data
@@ -16,7 +16,4 @@ runMyChamp = function(dataDir,outDir,sampleSheet="Pillay EPIC samplesheet 280516
 	source(mychampFile)
 	mychamp.CNA(intensity=data$intensity,pd=data$pd,resultsDir=outDir,controlGroup=controlGroup,seg.min.width=min.width,seg.nperm=nperm,arraytype=arrayType)
 	}
-
-
-
 

@@ -1,3 +1,4 @@
+# install package from bioconductor
 install.bioc = function(package)
 	{
 	source("https://bioconductor.org/biocLite.R")

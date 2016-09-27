@@ -1,3 +1,4 @@
+# run PC analysis
 runPCA = function(file=NULL,data=NULL,fileOut=NULL)
 	{
 	if(is.null(file)&is.null(data)) stop("Please specify a data object or file")
@@ -15,6 +16,7 @@ runPCA = function(file=NULL,data=NULL,fileOut=NULL)
 	return(pca)
 	}
 
+# plot PCA results
 plotPCA = function(pca,fileName=NULL,outDir,groups,colours=NULL,colFun=NULL,subset=NULL,arrows=TRUE,nArrows=10,xlim=NULL,ylim=NULL,PCs=c(1,2),amplifyArrows=4,legendloc="topleft")
 	{
 	if(!is.null(subset))
@@ -45,7 +47,7 @@ plotPCA = function(pca,fileName=NULL,outDir,groups,colours=NULL,colFun=NULL,subs
 	if(!is.null(fileName)) dev.off()
 }
 
-
+# add arrows to PCA plot
 pcaArrows = function(pca,x="PC1",y="PC2",ntop=10)
 {
   data = data.frame(obsnames=row.names(pca$x),pca$x)

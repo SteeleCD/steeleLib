@@ -1,4 +1,42 @@
-createSegFromConumee = function(dir,ignore=NULL)
+# from champ output to GISTIC seg file
+champToGistic=function(dir)
+	{
+	files = list.files(dir)
+	files = files[grep(".txt",files)]
+	out = NULL
+	for(i in 1:length(files))
+		{
+		out = rbind(out,read.table(paste0(dir,"/",files[i]),head=TRUE))
+		}
+	out = out[,-ncol(out)]
+	colnames(out) = c('Sample','Chromosome','Start Position','End Position','Num markers','Seg.CN')
+	write.table(out,file=paste0(dir,'/seg.txt'),row.names=FALSE,col.names=TRUE,sep='\t',quote=FALSE)
+	}
+
+# from sequenza to GISIC seg file
+sequenzaToGistic = function(segFiles,sampleNames=NULL,outDir,outFile=NULL)
+	{
+	if(is.null(sampleNames)) sampleNames = paste0("S",1:length(segFiles))
+	out = NULL
+	for(i in 1:length(segFiles))
+		{
+		data = read.table(segFiles[i],head=TRUE,sep="\t",as.is=TRUE)
+		data = data[,c("chromsome","start.pos","end.pos","N.BAF","CNt")]
+		data[,"CNt"] = log2(data[,"CNt"])-1
+		data = cbind(rep(sampleNames[i],times=nrow(data)),data)
+		colnames(data) = c("Sample","Chromosome","Start Position","End Position","Num markers","Seg.CN")
+		out = rbind(out,data)
+		}
+	if(!is.null(outFile))
+		{
+		write.table(out,paste0(outDir,outFile),sep="\t",col.names=TRUE,row.names=FALSE,quote=FALSE)
+		} else {
+		return(out)
+		}
+	}
+
+# from conumee to GISTIC seg file
+conumeeToGISTIC = function(dir,ignore=NULL,outFile="seg.txt")
 	{
 	files = list.files(dir)
 	files = files[grep("-res",files)]
@@ -19,9 +57,10 @@ createSegFromConumee = function(dir,ignore=NULL)
 		out = rbind(out,tmp)
 		}
 	colnames(out) = c("Sample","Chromosome","Start Position","End Position","Num markers","Seg.CN")
-	write.table(out,file=paste0(dir,"/seg.txt"),row.names=FALSE,col.names=TRUE,quote=FALSE,sep="\t")
+	write.table(out,file=paste0(dir,"/",outFile),row.names=FALSE,col.names=TRUE,quote=FALSE,sep="\t")
 	}
 
+# create pseudo markers file from seg file
 segToMarkers=function(file,dir,manifestMarkersFile = "/media/grp11/CI_Pathology_Steele/methylation/manifests/EPICmarkers.txt")
 	{
 	columnNames = c("Marker Name", "Chromosome", "Marker Position")

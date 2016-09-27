@@ -1,3 +1,4 @@
+# slightly altered ChAMP
 library(limma)
 library(DNAcopy)
 library(preprocessCore)
