@@ -89,7 +89,7 @@ plotByChrom = function(segFile=NULL,segObj=NULL,dataDir,outDir,fileName='segsByC
 	dev.off()
 	}
 	
-plotAbber = function(segFile=NULL,segObj=NULL,dataDir,outDir,fileName="abberationPlot.pdf",HEAD=TRUE,logCN=TRUE,thresh=0.2)
+plotAbber = function(segFile=NULL,segObj=NULL,dataDir,outDir,fileName="abberationPlot.pdf",HEAD=TRUE,logCN=TRUE,thresh=0.2,combine=TRUE)
 	{
 	library(copynumber)
 	if(!is.null(segFile)) data = read.table(paste0(dataDir,"/",segFile),head=HEAD,sep="\t")
@@ -99,7 +99,10 @@ plotAbber = function(segFile=NULL,segObj=NULL,dataDir,outDir,fileName="abberatio
 	chms = unique(data[,2])
 	individual = unique(data[,1])
 	# combine small segs
-	data = do.call(rbind,sapply(individual,FUN=function(x) do.call(rbind,sapply(chms,FUN=function(y) combineSegs(data[which(data[,1]==x&data[,2]==y),]),simplify=FALSE)),simplify=FALSE))	
+	if(combine)
+		{
+		data = do.call(rbind,sapply(individual,FUN=function(x) do.call(rbind,sapply(chms,FUN=function(y) combineSegs(data[which(data[,1]==x&data[,2]==y),]),simplify=FALSE)),simplify=FALSE))	
+		}
 	data = cbind(data[,1:2],rep("q",times=nrow(data)),data[,3:ncol(data)])
 	colnames(data) = c("sampleID","chrom","arm","start.pos","end.pos","n.probes","logR.mean")
 	pdf(paste0(outDir,'/',fileName))

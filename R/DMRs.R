@@ -41,15 +41,15 @@ getRegion = function(betas,chr,start,end,manifest,flank=10000)
 	region[1] = region[1]-flank 
 	region[2] = region[2]+flank
 	# down to chromosome
-	manifest = manifest[which(manifest$CHR==chr),]
+	manifest = manifest[which(manifest$CHR==chr),,drop=FALSE]
 	# down to region
 	index = which(manifest$MAPINFO>region[1]&manifest$MAPINFO<region[2])
-	manifest = manifest[index,]
+	manifest = manifest[index,,drop=FALSE]
 	# subset betas
-	betas = betas[which(rownames(betas)%in%manifest$IlmnID),]
+	betas = betas[which(rownames(betas)%in%manifest$IlmnID),,drop=FALSE]
 	# order
-	betas = betas[order(rownames(betas)),]
-	manifest = manifest[order(manifest$IlmnID),]
+	betas = betas[order(rownames(betas)),,drop=FALSE]
+	manifest = manifest[order(manifest$IlmnID),,drop=FALSE]
 	# get info ready for output
 	info = manifest$MAPINFO
 	names(info) = manifest$IlmnID
@@ -61,10 +61,10 @@ getRegion = function(betas,chr,start,end,manifest,flank=10000)
 	}
 
 # function to plot DMRs with overlapping genes displayed (if any)
-plotDMR = function(betas,dmrs,index,manifest,flank=10000,groupIndices,doInvLogit=TRUE,xOffset=10)
+plotDMR = function(betas,dmrs,index,manifest,flank=10000,groupIndices,doInvLogit=TRUE,xOffset=10,plotRatio=TRUE,plotAll=FALSE,colours=NULL,customTitle=NULL)
 	{
 	# get values in region
-	region = steeleLib:::getRegion(betas,dmrs[index,"chr"],dmrs[index,"start"],dmrs[index,"end"],manifest,flank)
+	region = getRegion(betas,dmrs[index,"chr"],dmrs[index,"start"],dmrs[index,"end"],manifest,flank)
 	# get positions
 	pos1 = matrix(region$pos,ncol=length(groupIndices[[1]]),nrow=nrow(region$betas))
 	pos2 = matrix(region$pos,ncol=length(groupIndices[[2]]),nrow=nrow(region$betas))
@@ -84,18 +84,34 @@ plotDMR = function(betas,dmrs,index,manifest,flank=10000,groupIndices,doInvLogit
 		XAXT = NULL
 		}
 	# plot DMR
-	#plot(pos1,region$betas[,groupIndices[[1]]],ylim=range(region$betas),xlab=XLAB,ylab=ifelse(doInvLogit,"Beta","M"),main=paste0("Chromosome ",dmrs[index,"chr"]),col="blue",xaxt=XAXT)
-	#points(pos2,region$betas[,groupIndices[[2]]],col="red")
-	#abline(v=c(dmrs[index,"end"],dmrs[index,"start"]),lty=2)
 	toOrder = order(pos1[,1])
-	#lines(pos1[toOrder,1],rowMeans(region$betas[,groupIndices[[1]]])[toOrder],col="blue",lwd=2)
-	#lines(pos2[toOrder,1],rowMeans(region$betas[,groupIndices[[2]]])[toOrder],col="red",lwd=2)
-	# plot genes
+	TITLE = ifelse(is.null(customTitle),paste0("Chromosome ",dmrs[index,"chr"]),customTitle)
+	# plot betas
 	positions = pos1[toOrder,1]
-	ratios = smooth(log(rowMeans(region$betas[,groupIndices[[1]]])[toOrder]/rowMeans(region$betas[,groupIndices[[2]]])[toOrder]))
-	plot(positions,ratios,type="l",col="black",lwd=2,xlab=XLAB,ylab="log(ratio)",main=paste0("Chromosome ",dmrs[index,"chr"]),xaxt=XAXT)
-	abline(h=0,lty=2)
+	if(plotRatio)
+		{
+		# plot ratio of betas in two groups		
+		ratios = smooth(log(rowMeans(region$betas[,groupIndices[[1]],drop=FALSE])[toOrder]/rowMeans(region$betas[,groupIndices[[2]],drop=FALSE])[toOrder]))
+		plot(positions,ratios,type="l",col="black",lwd=2,xlab=XLAB,ylab="log(ratio)",main=TITLE,xaxt=XAXT)
+		abline(h=0,lty=2)
+
+		} else {
+		# plot separate betas
+		plot(NA,xlab=XLAB,ylab="Beta",main=TITLE,xaxt=XAXT,ylim=c(0,1),xlim=range(positions))
+		for(i in 1:length(groupIndices))
+			{
+			# plot group means
+			lines(positions,smooth(rowMeans(region$betas[,groupIndices[[i]],drop=FALSE])[toOrder]),lty=1,lwd=2,col=ifelse(is.null(colours),i,colours[i]))
+			# plot individual betas
+			if(plotAll)
+				{
+				sapply(groupIndices[[i]],FUN=function(x) lines(positions,smooth(region$betas[,x][toOrder]),lty=2,lwd=1,col=ifelse(is.null(colours),i,colours[i])))
+				}
+			}
+		}
+	# add DMR limits
 	abline(v=c(dmrs[index,"end"],dmrs[index,"start"]),lty=2)
+	# plot genes
 	if(length(region$overlaps$geneStart)>0)
 		{
 		par(mar=c(5,4,0,2))
