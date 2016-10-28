@@ -54,16 +54,18 @@ kmeansAIC = function(fit)
 	}
 
 # hclust followed by k means
-hclustKmeans = function(distance,method="ward.D2",nGroups=4)
+hclustKmeans = function(data,method="ward.D2",nGroups=4)
 	{
+	# get distance
+	distance = dist(data)
 	# heirarchical clustering
 	clusters = hclust(distance,method)
 	# hclust groups
 	groups = cutree(clusters,nGroups)
 	# centers of heirarchical clusters
-	clust.centers = aggregate(pca$x,list(groups),mean)[,-1]
+	clust.centers = aggregate(data,list(groups),mean)[,-1]
 	# k means starting from HC centers
-	KM = kmeans(pca$x,centers=clust.centers)
+	KM = kmeans(data,centers=clust.centers)
 	return(KM)
 	}
 

@@ -38,6 +38,7 @@ getOverlapGenes = function(chr,start,end)
 getRegion = function(betas,chr,start,end,manifest,flank=10000)
 	{
 	region = sort(c(start,end))
+	region = region[c(1,length(region))]
 	region[1] = region[1]-flank 
 	region[2] = region[2]+flank
 	# down to chromosome
@@ -55,7 +56,7 @@ getRegion = function(betas,chr,start,end,manifest,flank=10000)
 	names(info) = manifest$IlmnID
 	info = info[which(names(info)%in%rownames(betas))]
 	# get overlapping genes
-	overlapGenes = getOverlapGenes(chr,region[1],region[2])
+	overlapGenes = steeleLib:::getOverlapGenes(chr,region[1],region[2])
 	# return
 	return(list(betas=betas,pos=info,overlaps=overlapGenes,manRegion=manifest))
 	}
@@ -98,6 +99,9 @@ plotDMR = function(betas,dmrs,index,manifest,flank=10000,groupIndices,doInvLogit
 		} else {
 		# plot separate betas
 		plot(NA,xlab=XLAB,ylab="Beta",main=TITLE,xaxt=XAXT,ylim=c(0,1),xlim=range(positions))
+		# add DMR limits
+		#abline(v=c(dmrs[index,"end"],dmrs[index,"start"]),lty=2)
+		mapply(FUN=function(a,b) polygon(x=c(a,b,b,a),y=c(9000,9000,-9000,-9000),col=rgb(0.5,0.5,0.5,0.5),lty=2),a=dmrs[index,"end"],b=dmrs[index,"start"])
 		for(i in 1:length(groupIndices))
 			{
 			# plot group means
@@ -110,7 +114,8 @@ plotDMR = function(betas,dmrs,index,manifest,flank=10000,groupIndices,doInvLogit
 			}
 		}
 	# add DMR limits
-	abline(v=c(dmrs[index,"end"],dmrs[index,"start"]),lty=2)
+	#abline(v=c(dmrs[index,"end"],dmrs[index,"start"]),lty=2)
+	#mapply(FUN=function(a,b) polygon(x=c(a,b,b,a),y=c(9000,9000,-9000,-9000)),a=dmrs[index,"end"],b=dmrs[index,"start"],col=rgb(0.5,0.5,0.5,0.5),lty=2)
 	# plot genes
 	if(length(region$overlaps$geneStart)>0)
 		{
