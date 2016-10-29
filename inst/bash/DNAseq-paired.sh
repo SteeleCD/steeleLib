@@ -5,20 +5,22 @@
 OPTIND=1
 
 # set variables
-dataDir=""
-refFile=""
-softDir=""
-indelsFile=""
-indelsFile2=""
-snpFile=""
-intervalList=""
-captureIntervals=""
-normString="N"
-tumourString="T"
-uniqueString1=""
-uniqueString2="_"
-picardDir="picard-tools-1.128"
-GATKdir="GATK-3.5"
+dataDir="" # directory where data is located
+refFile="" # reference fasta file
+softDir="" # directory where software is located
+indelsFile="" # indel file for realignment
+indelsFile2="" # 2nd indel file for realignment
+snpFile="" # SNP vcf for realignment
+intervalList="" # indel intervals for realignment
+captureIntervals="" # capture intervals bed (for exomes)
+normString="N" # string that signifies normal
+tumourString="T" # string that signifies tumour
+uniqueString1="" # string to make filename search based on normString unique
+uniqueString2="_" # string to make filename search based on normString unique
+picardDir="picard-tools-1.128" # directory from software directory where picard is located
+GATKdir="GATK-3.5" # directory from software directory where GATK is located
+cosmicFile="" # cosmic vcf for mutect 2
+dbsnpFile="" # dbsnp vcf for mutect 2
 
 # get variables
 while getopts "h?vf:" opt; do
@@ -54,6 +56,10 @@ while getopts "h?vf:" opt; do
     p)  picardDir=$OPTARG
         ;;
     g)  GATKdir=$OPTARG
+        ;;
+    D)  dbsnpFile=$OPTARG
+        ;;
+    C)  cosmicFile=$OPTARG
         ;;
     esac
 done
@@ -215,7 +221,7 @@ do
 	   	-knownSites $indelsFile \
 		-knownSites $snpFile \
 	   	-o $outDir/recal_data$case.table #\
-		#-L $captureIntervals
+		-L $captureIntervals
 		# check if complete
 		if [ ! -f $outDir/realigned$case.bai ]; then
 	                echo "Failed at realigned.bam->realigned.bai"
@@ -262,7 +268,7 @@ do
 		-knownSites $snpFile \
 		-BQSR $outDir/recal_data$case.table \
 		-o $outDir/recal_data2$case.table #\
-		#-L $captureIntervals
+		-L $captureIntervals
 		java -jar $softDir/$GATKdir/GenomeAnalysisTK.jar \
 		-T AnalyzeCovariates \
 		-R $refFile \
@@ -278,8 +284,10 @@ do
 		-R $refFile \
 		-I:tumor $outDir/realignedT.bam \
 		-I:normal $outDir/realignedN.bam \
-		-o $outDir/output.vcf #\
-		#-L $captureIntervals
+		-o $outDir/output.vcf \
+		-L $captureIntervals \
+		--dbsnp $dbsnpFile \
+		--cosmic $cosmicFile
 done
 
 
