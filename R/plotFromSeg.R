@@ -51,7 +51,8 @@ combineSegs = function(chromData,nMin=15)
 	chromData[-index,]
 	}
 
-plotFun = function(seg.mean,num.mark,seg.start,seg.end,YLIM,colours)
+plotFun = function(seg.mean,num.mark,seg.start,seg.end,
+		YLIM,colours)
 	{
 	#scatterplot3d(z=seg.mean,y=num.mark,x=seg.position)
 	plot(NA,ylim=range(seg.mean),xlim=range(c(seg.start,seg.end)),col=colours[num.mark],xaxt="n")
@@ -59,7 +60,8 @@ plotFun = function(seg.mean,num.mark,seg.start,seg.end,YLIM,colours)
 	sapply(1:length(seg.mean),FUN=function(x) lines(x=c(seg.start[x],seg.end[x]),y=rep(seg.mean[x],2),col=colours[num.mark][x],lwd=3))
 	}
 
-plotByChrom = function(segFile=NULL,segObj=NULL,dataDir,outDir,fileName='segsByChrom.pdf')
+plotByChrom = function(segFile=NULL,segObj=NULL,dataDir,
+		outDir,fileName='segsByChrom.pdf')
 	{
 	library(copynumber)
 	if(!is.null(segFile)) data = read.table(paste0(dataDir,"/",segFile),head=TRUE,sep="\t")
@@ -89,7 +91,10 @@ plotByChrom = function(segFile=NULL,segObj=NULL,dataDir,outDir,fileName='segsByC
 	dev.off()
 	}
 	
-plotAbber = function(segFile=NULL,segObj=NULL,dataDir,outDir,fileName="abberationPlot.pdf",HEAD=TRUE,logCN=TRUE,thresh=0.2,combine=TRUE)
+plotAbber = function(segFile=NULL,segObj=NULL,dataDir,
+		outDir=NULL,fileName="abberationPlot.pdf",
+		HEAD=TRUE,logCN=TRUE,thresh=0.2,combine=TRUE,
+		chrom=NULL)
 	{
 	library(copynumber)
 	if(!is.null(segFile)) data = read.table(paste0(dataDir,"/",segFile),head=HEAD,sep="\t")
@@ -105,8 +110,8 @@ plotAbber = function(segFile=NULL,segObj=NULL,dataDir,outDir,fileName="abberatio
 		}
 	data = cbind(data[,1:2],rep("q",times=nrow(data)),data[,3:ncol(data)])
 	colnames(data) = c("sampleID","chrom","arm","start.pos","end.pos","n.probes","logR.mean")
-	pdf(paste0(outDir,'/',fileName))
-	plotAberration(data,thres.gain=thresh)
-	dev.off()
+	if(!is.null(outDir)) pdf(paste0(outDir,'/',fileName))
+	plotAberration(data,thres.gain=thresh,chrom=chrom)
+	if(!is.null(outDir)) dev.off()
 	}
 

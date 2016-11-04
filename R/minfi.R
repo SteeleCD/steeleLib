@@ -1,4 +1,4 @@
-minfiPipeline = function(dataDir,outDir=getwd(),nCells=5,legendloc="topleft",plotcolours=c("green","red","black","blue","cyan"))
+minfiPipeline = function(dataDir,outDir=getwd(),nCells=5,legendloc="topleft",plotcolours=c("green","red","black","blue","cyan"),refactor=NULL,combat=NULL)
 	{
 	# load in sample sheet
 	sheet = read.metharray.sheet(dataDir)
@@ -53,22 +53,34 @@ minfiPipeline = function(dataDir,outDir=getwd(),nCells=5,legendloc="topleft",plo
 	# save betas
 	colnames(betas) = sheet$Sample_Name
 	save(list="betas",file=paste0(outDir,"betas-funnorm-dropSex-dropLowQ.Rdata"))
-	# create refactor file
-	tmp = cbind(rownames(betas),betas)
-	colnames(tmp)[1] = "ID"
-	write.table(tmp,file=paste0(outDir,"refactor_input.txt"),row.names=FALSE,col.names=TRUE,quote=FALSE)
-	rm(tmp)
-	# run refactor to estimate cell proportions in each sample
-	refactorOutput <- refactor(paste0(outDir,"refactor_input.txt"), nCells, out = paste0(outDir,"refactor_out.Rdata"))
-	# make factors for combat
-	batch = as.factor(sheet$Slide)
-	covModel = model.matrix(~refactorOutput$refactor_components)
-	# run combat to normalise based on batch and cell proportions
-	combatMs = ComBat(dat=logit(betas),batch=batch,mod=covModel)
-	# save combat Ms
-	save(list="combatMs",file=paste0(outDir,"combatMs.Rdata"))
+	# refactor estimation
+	if(!is.null(refactor))
+		{
+		# create refactor file
+		tmp = cbind(rownames(betas),betas)
+		colnames(tmp)[1] = "ID"
+		write.table(tmp,file=paste0(outDir,"refactor_input.txt"),row.names=FALSE,col.names=TRUE,quote=FALSE)
+		rm(tmp)
+		# run refactor to estimate cell proportions in each sample
+		refactorOutput <- refactor(paste0(outDir,"refactor_input.txt"), nCells, out = paste0(outDir,"refactor_out.Rdata"))
+		# make factors for combat
+		covModel = model.matrix(~refactorOutput$refactor_components)
+		}
+	if(!is.null(combat))
+		{
+		if(is.null(covModel)) covModel = model.matrix(~1,data=sheet)
+		# batch
+		batch = as.factor(sheet[,combat])
+		# run combat to normalise based on batch and cell proportions
+		combatMs = ComBat(dat=logit(betas),batch=batch,mod=covModel)
+		# save combat Ms
+		save(list="combatMs",file=paste0(outDir,"combatMs.Rdata"))
+		forPCA = combatMs
+		} else {
+		forPCA = betas
+		}
 	# pca
-	pca = runPCA(data=combatMs,fileOut=paste0(outDir,"pca.Rdata"))
+	pca = runPCA(data=forPCA,fileOut=paste0(outDir,"pca.Rdata"))
 	plotPCA(pca,fileName="pca.pdf",outDir=outDir,groups=sheet$Pool_ID,arrows=FALSE,legendloc=legendloc,colours=plotcolours)
 	# hclust
 	groups = sapply(levels(as.factor(sheet$Pool_ID)),FUN=function(x) sheet$Sample_Name[which(sheet$Pool_ID==x)])
