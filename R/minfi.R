@@ -1,28 +1,29 @@
-minfiPipeline = function(dataDir,outDir=getwd(),nCells=5,legendloc="topleft",plotcolours=c("green","red","black","blue","cyan"),refactor=NULL,combat=NULL)
+minfiPipeline = function(dataDir,outDir=getwd(),nCells=5,legendloc="topleft",plotcolours=c("green","red","black","blue","cyan"),refactor=NULL,combat=NULL,toIgnore=NULL)
 	{
 	# load in sample sheet
 	sheet = read.metharray.sheet(dataDir)
+	if(!is.null(toIgnore)) sheet = sheet[-which(sheet$Sample_Name%in%toIgnore),] 
 	# read idats based on sample sheet
 	RGset = read.metharray.exp(targets=sheet)
 	# QC 
 	phenoData = pData(RGset)
 	Mset = preprocessRaw(RGset)
-	pdf(paste0(outDir,"QCplot.pdf"))
+	pdf(paste0(outDir,"/QCplot.pdf"))
 	plotQC(getQC(Mset))
 	dev.off()
-	pdf(paste0(outDir,"densityPlot.pdf"))
+	pdf(paste0(outDir,"/densityPlot.pdf"))
 	densityPlot(Mset,sampGroups=phenoData$Sample_Group)
 	dev.off()
-	pdf(paste0(outDir,"densityBeanPlot.pdf"))
+	pdf(paste0(outDir,"/densityBeanPlot.pdf"))
 	densityBeanPlot(Mset,sampGroups=phenoData$Sample_Group)
 	dev.off()
-	pdf(paste0(outDir,"controlProbes.pdf"))
+	pdf(paste0(outDir,"/controlProbes.pdf"))
 	controlStripPlot(RGset)
 	dev.off()
 	# sex
 	ratioSet = ratioConvert(Mset,what="both",keepCN=TRUE)
 	Gset = mapToGenome(ratioSet)
-	pdf(paste0(outDir,"sexPlot.pdf"))
+	pdf(paste0(outDir,"/sexPlot.pdf"))
 	plotSex(getSex(Gset,cutoff=-2))
 	dev.off()
 	rm(phenoData)
@@ -40,7 +41,7 @@ minfiPipeline = function(dataDir,outDir=getwd(),nCells=5,legendloc="topleft",plo
 	funnorm = preprocessFunnorm(RGset)
 	# drop SNP probes
 	funnorm = dropLociWithSnps(funnorm)
-	save(list="funnorm",file=paste0(outDir,"funnorm-droppedSnps.Rdata"))
+	save(list="funnorm",file=paste0(outDir,"/funnorm-droppedSnps.Rdata"))
 	# get betas
 	betas = getBeta(funnorm)
 	manifest = getManifest(RGset)
@@ -52,7 +53,7 @@ minfiPipeline = function(dataDir,outDir=getwd(),nCells=5,legendloc="topleft",plo
 	betas = betas[which(rownames(betas)%in%probesToKeep),]
 	# save betas
 	colnames(betas) = sheet$Sample_Name
-	save(list="betas",file=paste0(outDir,"betas-funnorm-dropSex-dropLowQ.Rdata"))
+	save(list="betas",file=paste0(outDir,"/betas-funnorm-dropSex-dropLowQ.Rdata"))
 	# refactor estimation
 	if(!is.null(refactor))
 		{
@@ -62,7 +63,7 @@ minfiPipeline = function(dataDir,outDir=getwd(),nCells=5,legendloc="topleft",plo
 		write.table(tmp,file=paste0(outDir,"refactor_input.txt"),row.names=FALSE,col.names=TRUE,quote=FALSE)
 		rm(tmp)
 		# run refactor to estimate cell proportions in each sample
-		refactorOutput <- refactor(paste0(outDir,"refactor_input.txt"), nCells, out = paste0(outDir,"refactor_out.Rdata"))
+		refactorOutput <- refactor(paste0(outDir,"/refactor_input.txt"), nCells, out = paste0(outDir,"/refactor_out.Rdata"))
 		# make factors for combat
 		covModel = model.matrix(~refactorOutput$refactor_components)
 		}
@@ -74,16 +75,16 @@ minfiPipeline = function(dataDir,outDir=getwd(),nCells=5,legendloc="topleft",plo
 		# run combat to normalise based on batch and cell proportions
 		combatMs = ComBat(dat=logit(betas),batch=batch,mod=covModel)
 		# save combat Ms
-		save(list="combatMs",file=paste0(outDir,"combatMs.Rdata"))
+		save(list="combatMs",file=paste0(outDir,"/combatMs.Rdata"))
 		forPCA = combatMs
 		} else {
 		forPCA = betas
 		}
 	# pca
-	pca = runPCA(data=forPCA,fileOut=paste0(outDir,"pca.Rdata"))
+	pca = runPCA(data=forPCA,fileOut=paste0(outDir,"/pca.Rdata"))
 	plotPCA(pca,fileName="pca.pdf",outDir=outDir,groups=sheet$Pool_ID,arrows=FALSE,legendloc=legendloc,colours=plotcolours)
 	# hclust
 	groups = sapply(levels(as.factor(sheet$Pool_ID)),FUN=function(x) sheet$Sample_Name[which(sheet$Pool_ID==x)])
-	hClust = runHclust(pca$x,groups=groups,file=paste0(outDir,"hclust.pdf"),plotcolours=colours)
-	save(list="hClust",file=paste0(outDir,"hclust.Rdata"))
+	hClust = runHclust(pca$x,groups=groups,file=paste0(outDir,"/hclust.pdf"),plotcolours=colours)
+	save(list="hClust",file=paste0(outDir,"/hclust.Rdata"))
 	}
