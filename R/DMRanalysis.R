@@ -161,6 +161,7 @@ DMRinfo = function(dmrFile,# DMR file from bumphunter
 		pdf(paste0(outDir,"/exonic-volcano.pdf"))
 		plot(sigDMRs[exonicIndex,"value"],-log(sigDMRs[exonicIndex,threshType]),pch=PCH[exonicIndex],col=colours[exonicIndex],xlab="Beta difference",ylab=paste0("-log(",threshType,")"))
 		dev.off()}
+	return(matched)
 	}
 
 # cross reference gene list with COSMIC
