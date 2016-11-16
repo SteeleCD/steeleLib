@@ -116,7 +116,7 @@ DMRinfo = function(dmrFile,# DMR file from bumphunter
 	threePrimeIndex = which(matched$UTR%in%c("3'UTR","overlaps 3'UTR"))
 	if(length(threePrimeIndex)>0) {
 		pdf(paste0(outDir,"/3prime-volcano.pdf"))
-		plot(sigDMRs[threePrimeIndex,"value"],-log(sigDMRs[threePrimeIndex,threshType]),pch=PCH[threePrimeIndex],col=colours[threePrimeIndex],xlab="Beta difference",ylab="-log(",threshType,")")
+		plot(sigDMRs[threePrimeIndex,"value"],-log(sigDMRs[threePrimeIndex,threshType]),pch=PCH[threePrimeIndex],col=colours[threePrimeIndex],xlab="Beta difference",ylab=paste0("-log(",threshType,")"))
 		dev.off()}
 	# 5' UTR
 	fivePrimeIndex = which(matched$UTR%in%c("5'UTR","overlaps 5'UTR"))
@@ -134,32 +134,32 @@ DMRinfo = function(dmrFile,# DMR file from bumphunter
 	if(length(promoterIndex)>0) 
 		{
 		pdf(paste0(outDir,"/prom-volcano.pdf"))
-		plot(sigDMRs[promoterIndex,"value"],-log(sigDMRs[promoterIndex,threshType]),pch=PCH[promoterIndex],col=colours[promoterIndex],xlab="Beta difference",ylab="-log(",threshType,")")
+		plot(sigDMRs[promoterIndex,"value"],-log(sigDMRs[promoterIndex,threshType]),pch=PCH[promoterIndex],col=colours[promoterIndex],xlab="Beta difference",ylab=paste0("-log(",threshType,")"))
 		dev.off()
 		}
 	# upstream
 	upstreamIndex = which(matched$region=="upstream")
 	if(length(upstreamIndex)>0) {
 		pdf(paste0(outDir,"/upstream-volcano.pdf"))
-		plot(sigDMRs[upstreamIndex,"value"],-log(sigDMRs[upstreamIndex,threshType]),pch=PCH[upstreamIndex],col=colours[upstreamIndex],xlab="Beta difference",ylab="-log(",threshType,")")
+		plot(sigDMRs[upstreamIndex,"value"],-log(sigDMRs[upstreamIndex,threshType]),pch=PCH[upstreamIndex],col=colours[upstreamIndex],xlab="Beta difference",ylab=paste0("-log(",threshType,")"))
 		dev.off()}
 	# downstream
 	downstreamIndex = which(matched$region=="downstream")
 	if(length(downstreamIndex)>0) {
 		pdf(paste0(outDir,"/downstream-volcano.pdf"))
-		plot(sigDMRs[downstreamIndex,"value"],-log(sigDMRs[downstreamIndex,threshType]),pch=PCH[downstreamIndex],col=colours[downstreamIndex],xlab="Beta difference",ylab="-log(",threshType,")")
+		plot(sigDMRs[downstreamIndex,"value"],-log(sigDMRs[downstreamIndex,threshType]),pch=PCH[downstreamIndex],col=colours[downstreamIndex],xlab="Beta difference",ylab=paste0("-log(",threshType,")"))
 		dev.off()}
 	# intronic
 	intronicIndex = which(matched$description=="inside intron")
 	if(length(intronicIndex)>0) {
 		pdf(paste0(outDir,"/intronic-volcano.pdf"))
-		plot(sigDMRs[intronicIndex,"value"],-log(sigDMRs[intronicIndex,threshType]),pch=PCH[intronicIndex],col=colours[intronicIndex],xlab="Beta difference",ylab="-log(",threshType,")")
+		plot(sigDMRs[intronicIndex,"value"],-log(sigDMRs[intronicIndex,threshType]),pch=PCH[intronicIndex],col=colours[intronicIndex],xlab="Beta difference",ylab=paste0("-log(",threshType,")"))
 		dev.off()}
 	# exonic
 	exonicIndex = which(matched$description%in%c("inside exon","covers exon(s)","overlaps exon upstream","overlaps exon downstream","overlaps two exons","covers"))
 	if(length(exonicIndex)>0) {
 		pdf(paste0(outDir,"/exonic-volcano.pdf"))
-		plot(sigDMRs[exonicIndex,"value"],-log(sigDMRs[exonicIndex,threshType]),pch=PCH[exonicIndex],col=colours[exonicIndex],xlab="Beta difference",ylab="-log(",threshType,")")
+		plot(sigDMRs[exonicIndex,"value"],-log(sigDMRs[exonicIndex,threshType]),pch=PCH[exonicIndex],col=colours[exonicIndex],xlab="Beta difference",ylab=paste0("-log(",threshType,")"))
 		dev.off()}
 	}
 
