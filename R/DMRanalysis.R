@@ -19,12 +19,12 @@ preDMR = function()
 
 # cross reference DMRs with gene info
 DMRinfo = function(dmrFile,# DMR file from bumphunter
-		preDMRinfo, # info from preDMR() 
 		fwerThresh=0.1,
 		pThresh = 0.05,
 		doP = TRUE,
 		outDir) 
 	{
+	preDMRinfo = preDMR()
 	# set threshold
 	if(doP)
 		{

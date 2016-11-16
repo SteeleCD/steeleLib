@@ -30,6 +30,7 @@ export(refactor)
 export(minfiPipeline)
 export(plotDMR)
 export(sequenzaToGistic)
+export(DMRinfo)
 
 importFrom('ChAMP','champ.load','champ.norm','champ.SVD',
 	'champ.CNA','champ.DMR','champ.MVP','champ.runCombat')
