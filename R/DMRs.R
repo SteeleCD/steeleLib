@@ -65,8 +65,10 @@ getRegion = function(betas,chr,start,end,manifest,flank=10000)
 plotDMR = function(betas,dmrs,index,manifest,flank=10000,
 		groupIndices,doInvLogit=TRUE,xOffset=10,
 		plotRatio=TRUE,plotAll=FALSE,colours=NULL,
-		customTitle=NULL)
+		customTitle=NULL,doLegend=FALSE,legloc="topleft")
 	{
+	# colours
+	if(is.null(colours)) colours = 1:length(groupIndices)
 	# plotAll
 	if(length(plotAll)==1) plotAll = rep(plotAll,length(groupIndices))
 	# get values in region
@@ -100,7 +102,6 @@ plotDMR = function(betas,dmrs,index,manifest,flank=10000,
 		ratios = smooth(log(rowMeans(region$betas[,groupIndices[[1]],drop=FALSE])[toOrder]/rowMeans(region$betas[,groupIndices[[2]],drop=FALSE])[toOrder]))
 		plot(positions,ratios,type="l",col="black",lwd=2,xlab=XLAB,ylab="log(ratio)",main=TITLE,xaxt=XAXT)
 		abline(h=0,lty=2)
-
 		} else {
 		# plot separate betas
 		plot(NA,xlab=XLAB,ylab="Beta",main=TITLE,xaxt=XAXT,ylim=c(0,1),xlim=range(positions))
@@ -109,13 +110,38 @@ plotDMR = function(betas,dmrs,index,manifest,flank=10000,
 		for(i in 1:length(groupIndices))
 			{
 			# plot group means
-			lines(positions,smooth(rowMeans(region$betas[,groupIndices[[i]],drop=FALSE])[toOrder]),lty=1,lwd=2,col=ifelse(is.null(colours),i,colours[i]))
+			lines(positions,smooth(rowMeans(region$betas[,groupIndices[[i]],drop=FALSE])[toOrder]),lty=1,lwd=2,col=colours[i])
 			# plot individual betas
 			if(plotAll[i])
 				{
-				sapply(groupIndices[[i]],FUN=function(x) lines(positions,smooth(region$betas[,x][toOrder]),lty=2,lwd=1,col=ifelse(is.null(colours),i,colours[i])))
+				sapply(groupIndices[[i]],FUN=function(x) lines(positions,smooth(region$betas[,x][toOrder]),lty=2,lwd=1,col=colours[i]))
 				}
 			}
+		}
+	# legend
+	if(doLegend)
+		{
+		# lines
+		if(any(plotAll))
+			{
+			linesLeg = c(1,2)
+			linesCols = c("gray","gray")
+			linesNames = c("Mean","Separate")
+			} else {
+			linesLeg = NULL
+			linesCols = NULL
+			linesNames = NULL
+			}
+		# colours
+		colsLeg = rep(15,times=length(groupIndices))
+		colsCols = colours
+		colsNames = names(groupIndices)
+		# legend
+		legend(legloc,
+			legend=c(colsNames,linesNames),
+			col=c(colsCols,linesCols),
+			lty=(rep(NA,times=length(colsLeg)),linesLeg),
+			pch=c(colsLeg,rep(NA,times=length(linesLeg))))
 		}
 	# plot genes
 	if(length(region$overlaps$geneStart)>0)
