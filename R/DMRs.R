@@ -140,7 +140,7 @@ plotDMR = function(betas,dmrs,index,manifest,flank=10000,
 		legend(legloc,
 			legend=c(colsNames,linesNames),
 			col=c(colsCols,linesCols),
-			lty=(rep(NA,times=length(colsLeg)),linesLeg),
+			lty=c(rep(NA,times=length(colsLeg)),linesLeg),
 			pch=c(colsLeg,rep(NA,times=length(linesLeg))))
 		}
 	# plot genes
