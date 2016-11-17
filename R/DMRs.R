@@ -141,7 +141,7 @@ plotDMR = function(betas,dmrs,index,manifest,flank=10000,
 			# plot individual betas
 			if(plotAll[i])
 				{
-				sapply(groupIndices[[i]],FUN=function(x) lines(positions,smooth(region$betas[,x][toOrder]),lty=2,lwd=1,col=allCols[x])))
+				sapply(groupIndices[[i]],FUN=function(x) lines(positions,smooth(region$betas[,x][toOrder]),lty=2,lwd=1,col=allCols[x]))
 				}
 			}
 		}
