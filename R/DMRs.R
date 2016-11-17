@@ -110,7 +110,8 @@ plotDMR = function(betas,dmrs,index,manifest,flank=10000,
 		for(i in 1:length(groupIndices))
 			{
 			# plot group means
-			lines(positions,smooth(rowMeans(region$betas[,groupIndices[[i]],drop=FALSE])[toOrder]),lty=1,lwd=2,col=colours[i])
+			#lines(positions,smooth(rowMeans(region$betas[,groupIndices[[i]],drop=FALSE])[toOrder]),lty=1,lwd=2,col=colours[i])
+			lines(positions,rowMeans(apply(region$betas[toOrder,groupIndices[[i]],drop=FALSE],MARGIN=2,smooth)),lty=1,lwd=2,col=colours[i])
 			# plot individual betas
 			if(plotAll[i])
 				{
@@ -127,10 +128,12 @@ plotDMR = function(betas,dmrs,index,manifest,flank=10000,
 			linesLeg = c(1,2)
 			linesCols = c("gray","gray")
 			linesNames = c("Mean","Separate")
+			linesLWD = c(2,1)
 			} else {
 			linesLeg = NULL
 			linesCols = NULL
 			linesNames = NULL
+			linewLWD = NULL
 			}
 		# colours
 		colsLeg = rep(15,times=length(groupIndices))
@@ -141,6 +144,7 @@ plotDMR = function(betas,dmrs,index,manifest,flank=10000,
 			legend=c(colsNames,linesNames),
 			col=c(colsCols,linesCols),
 			lty=c(rep(NA,times=length(colsLeg)),linesLeg),
+			lwd=c(rep(NA,times=length(colsLeg)),linesLWD),
 			pch=c(colsLeg,rep(NA,times=length(linesLeg))))
 		}
 	# plot genes
