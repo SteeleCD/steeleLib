@@ -111,7 +111,9 @@ plotDMR = function(betas,dmrs,index,manifest,flank=10000,
 			{
 			# plot group means
 			#lines(positions,smooth(rowMeans(region$betas[,groupIndices[[i]],drop=FALSE])[toOrder]),lty=1,lwd=2,col=colours[i])
-			lines(positions,rowMeans(apply(region$betas[toOrder,groupIndices[[i]],drop=FALSE],MARGIN=2,smooth)),lty=1,lwd=2,col=colours[i])
+			smoothBetas = apply(region$betas[toOrder,groupIndices[[i]],drop=FALSE],MARGIN=2,smooth)
+			if(!is.matrix(smoothBetas)) smoothBetas = t(smoothBetas)
+			lines(positions,rowMeans(smoothBetas),lty=1,lwd=2,col=colours[i])
 			# plot individual betas
 			if(plotAll[i])
 				{
