@@ -62,8 +62,13 @@ getRegion = function(betas,chr,start,end,manifest,flank=10000)
 	}
 
 # function to plot DMRs with overlapping genes displayed (if any)
-plotDMR = function(betas,dmrs,index,manifest,flank=10000,groupIndices,doInvLogit=TRUE,xOffset=10,plotRatio=TRUE,plotAll=FALSE,colours=NULL,customTitle=NULL)
+plotDMR = function(betas,dmrs,index,manifest,flank=10000,
+		groupIndices,doInvLogit=TRUE,xOffset=10,
+		plotRatio=TRUE,plotAll=FALSE,colours=NULL,
+		customTitle=NULL)
 	{
+	# plotAll
+	if(length(plotAll)==1) plotAll = rep(plotAll,length(groupIndices))
 	# get values in region
 	region = getRegion(betas,dmrs[index,"chr"],dmrs[index,"start"],dmrs[index,"end"],manifest,flank)
 	# get positions
@@ -100,22 +105,18 @@ plotDMR = function(betas,dmrs,index,manifest,flank=10000,groupIndices,doInvLogit
 		# plot separate betas
 		plot(NA,xlab=XLAB,ylab="Beta",main=TITLE,xaxt=XAXT,ylim=c(0,1),xlim=range(positions))
 		# add DMR limits
-		#abline(v=c(dmrs[index,"end"],dmrs[index,"start"]),lty=2)
 		mapply(FUN=function(a,b) polygon(x=c(a,b,b,a),y=c(9000,9000,-9000,-9000),col=rgb(0.5,0.5,0.5,0.5),lty=2),a=dmrs[index,"end"],b=dmrs[index,"start"])
 		for(i in 1:length(groupIndices))
 			{
 			# plot group means
 			lines(positions,smooth(rowMeans(region$betas[,groupIndices[[i]],drop=FALSE])[toOrder]),lty=1,lwd=2,col=ifelse(is.null(colours),i,colours[i]))
 			# plot individual betas
-			if(plotAll)
+			if(plotAll[i])
 				{
 				sapply(groupIndices[[i]],FUN=function(x) lines(positions,smooth(region$betas[,x][toOrder]),lty=2,lwd=1,col=ifelse(is.null(colours),i,colours[i])))
 				}
 			}
 		}
-	# add DMR limits
-	#abline(v=c(dmrs[index,"end"],dmrs[index,"start"]),lty=2)
-	#mapply(FUN=function(a,b) polygon(x=c(a,b,b,a),y=c(9000,9000,-9000,-9000)),a=dmrs[index,"end"],b=dmrs[index,"start"],col=rgb(0.5,0.5,0.5,0.5),lty=2)
 	# plot genes
 	if(length(region$overlaps$geneStart)>0)
 		{
@@ -150,7 +151,11 @@ plotDMR = function(betas,dmrs,index,manifest,flank=10000,groupIndices,doInvLogit
 	}
 
 # volcano plot
-plotVolcano = function(data,manifestProbes=NULL,file=NULL,PAR=list(mfrow=c(1,1),mar=c(5,4,4,2)),title="test",folder="/home/chris/Dropbox/PostDoc/methylation/plots/undiffSarc/DMP/volcano/",MAIN="test")
+plotVolcano = function(data,manifestProbes=NULL,
+		file=NULL,PAR=list(mfrow=c(1,1),
+		mar=c(5,4,4,2)),title="test",
+		folder=getwd(),
+		MAIN="test")
 	{
 	base = paste0(folder,title,"/")
 	if(!is.null(file)) pdf(paste0(base,title,file))
