@@ -61,16 +61,40 @@ getRegion = function(betas,chr,start,end,manifest,flank=10000)
 	return(list(betas=betas,pos=info,overlaps=overlapGenes,manRegion=manifest))
 	}
 
+fillColours = function(colour,n,doSep=FALSE)
+	{
+	if(doSep)
+		{
+		out = rainbow(n)
+		} else {
+
+		}
+	}
+
 # function to plot DMRs with overlapping genes displayed (if any)
 plotDMR = function(betas,dmrs,index,manifest,flank=10000,
 		groupIndices,doInvLogit=TRUE,xOffset=10,
-		plotRatio=TRUE,plotAll=FALSE,colours=NULL,
+		plotRatio=TRUE,plotAll=FALSE,allSepCols=FALSE,colours=NULL,
 		customTitle=NULL,doLegend=FALSE,legloc="topleft")
 	{
 	# colours
 	if(is.null(colours)) colours = 1:length(groupIndices)
 	# plotAll
-	if(length(plotAll)==1) plotAll = rep(plotAll,length(groupIndices))
+	if(length(plotAll)==1) 
+		{
+		plotAll = rep(plotAll,length(groupIndices))		
+		}
+	if(length(allSepCols)==1)
+		{
+		allSepCols = rep(allSepCols,length(groupIndices))	
+		}
+	nGroups = sapply(groupIndices,length)
+	allCols = unlist(sapply(1:length(groupIndices),FUN=function(x) rep(colours[x],times=length(groupIndices[[x]]))))
+	if(any(allSepCols)) 
+		{
+		sepCols = rainbow(sum(nGroups[which(allSepCols)]))
+		allCols[unlist(groupIndices[which(allSepCols)])] = sepCols
+		}
 	# get values in region
 	region = getRegion(betas,dmrs[index,"chr"],dmrs[index,"start"],dmrs[index,"end"],manifest,flank)
 	# get positions
@@ -117,7 +141,7 @@ plotDMR = function(betas,dmrs,index,manifest,flank=10000,
 			# plot individual betas
 			if(plotAll[i])
 				{
-				sapply(groupIndices[[i]],FUN=function(x) lines(positions,smooth(region$betas[,x][toOrder]),lty=2,lwd=1,col=colours[i]))
+				sapply(groupIndices[[i]],FUN=function(x) lines(positions,smooth(region$betas[,x][toOrder]),lty=2,lwd=1,col=allCols[x])))
 				}
 			}
 		}
@@ -136,6 +160,14 @@ plotDMR = function(betas,dmrs,index,manifest,flank=10000,
 			linesCols = NULL
 			linesNames = NULL
 			linewLWD = NULL
+			}
+		if(any(allSepCols))
+			{
+			indices = unlist(groupIndices[which(allSepCols)])
+			linesLeg = c(linesLeg,rep(2,length(indices)))
+			linesCols = c(linesCols,allCols[indices])
+			linesNames = c(linesNames,colnames(betas)[indices])
+			linesLWD = c(linesLWD,rep(1,length(indices)))
 			}
 		# colours
 		colsLeg = rep(15,times=length(groupIndices))
