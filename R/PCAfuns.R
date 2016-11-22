@@ -17,7 +17,11 @@ runPCA = function(file=NULL,data=NULL,fileOut=NULL)
 	}
 
 # plot PCA results
-plotPCA = function(pca,fileName=NULL,outDir,groups,colours=NULL,colFun=NULL,subset=NULL,arrows=TRUE,nArrows=10,xlim=NULL,ylim=NULL,PCs=c(1,2),amplifyArrows=4,legendloc="topleft")
+plotPCA = function(pca,fileName=NULL,outDir,groups,
+		colours=NULL,colFun=NULL,subset=NULL,
+		arrows=TRUE,nArrows=10,xlim=NULL,
+		ylim=NULL,PCs=c(1,2),amplifyArrows=4,
+		legendloc="topleft")
 	{
 	if(!is.null(subset))
 		{
