@@ -1,5 +1,5 @@
 # get bump limits using a sliding window and change of gradient
-getBumpLimsWindow = function(betas,windowSize=50,negCount=c(-40),gradLimit=20,retLim=TRUE)
+getBumpLimsWindow = function(betas,windowSize=50,negCount=c(-40),gradLimit=10,retLim=TRUE)
 {
   # GET DENSITY
   dens = density(betas)
@@ -40,10 +40,10 @@ getBumpLimsWindow = function(betas,windowSize=50,negCount=c(-40),gradLimit=20,re
   # return bum limits
   if(retLim)
   {
-    if(!is.na(tmp))
-    {
-      out = list(lims=dens$x[tmp],relHeight=max(dens$y[tmp[1]:tmp[2]])/max(dens$y))
-    } else {out=NA}
+  if(!is.na(tmp))
+  {
+    out = list(lims=dens$x[tmp],relHeight=max(dens$y[tmp[1]:tmp[2]])/max(dens$y))
+  } else {out=NA}
   } else {
     if(!is.na(tmp))
     {

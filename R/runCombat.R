@@ -1,6 +1,7 @@
 # logit function
 logit = function(p,offset=1e-9) 
 	{
+  p = as.matrix(p)
 	maxIndex = which(p==1)
 	minIndex = which(p==0)
 	if(length(maxIndex)>0) p[maxIndex] = 1-offset
@@ -11,6 +12,7 @@ logit = function(p,offset=1e-9)
 # inverse logit function
 invlogit = function(x) 
 	{
+  x = as.matrix(x)
 	maxIndex = which(is.infinite(x)&x>0)
 	minIndex = which(is.infinite(x)&x<0)
 	inv = exp(x)/(1+exp(x))
