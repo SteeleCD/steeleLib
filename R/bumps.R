@@ -1,5 +1,5 @@
 # get bump limits using a sliding window and change of gradient
-getBumpLimsWindow = function(betas,windowSize=50,negCount=c(-20),gradLimit=10,sevLimit=c(-100),retLim=TRUE,combine=TRUE,plotDiag=FALSE)
+getBumpLimsWindow = function(betas,windowSize=50,negCount=c(-20),gradLimit=10,sevLimit=c(-100),retLim=TRUE,combine=TRUE,plotDiag=FALSE,doAUC=FALSE)
 {
 if(plotDiag)
 	{
@@ -7,7 +7,7 @@ if(plotDiag)
 	} else {
 	par(mfrow=c(1,1),mar=c(3,4,0,0))
 	}
-library(flux)
+if(doAUC) library(flux)
   # GET DENSITY
   dens = density(betas)
   # get gradients of density
@@ -97,13 +97,20 @@ if(!any(is.na(tmp)))
   {
   if(!any(is.na(tmp)))
   {
+if(doAUC)
+{
    AUC = sum(apply(tmp,MARGIN=1,FUN=function(i) auc(x=dens$x[i[1]:i[2]],y=dens$y[i[1]:i[2]])))
+score = AUC*severity
+} else {
+AUC = list(x=dens$x[tmp[1,1]:tmp[1,2]],y=dens$y[tmp[1,1]:tmp[1,2]])
+score = NA
+}
    out = list(lims=lims,
 	height=max(dens$y[min(tmp[,1]):max(tmp[,2])]),
 	relHeight=max(dens$y[min(tmp[,1]):max(tmp[,2])])/max(dens$y),
 	auc=AUC,
 	severity=severity,
-	score=AUC*severity)
+	score=score)
   } else {out=NA}
   } else {
     # TRUE/FALSE output

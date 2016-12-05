@@ -161,6 +161,7 @@ DMRinfo = function(dmrFile,# DMR file from bumphunter
 		pdf(paste0(outDir,"/exonic-volcano.pdf"))
 		plot(sigDMRs[exonicIndex,"value"],-log(sigDMRs[exonicIndex,threshType]),pch=PCH[exonicIndex],col=colours[exonicIndex],xlab="Beta difference",ylab=paste0("-log(",threshType,")"))
 		dev.off()}
+	write.csv(cbind(sigDMRs,matched),paste0(outDir,"/annotatedDMRs.csv"))
 	return(matched)
 	}
 
