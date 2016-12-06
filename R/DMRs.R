@@ -159,7 +159,7 @@ plotDMR = function(betas,dmrs,index,manifest,flank=10000,
 			linesLeg = NULL
 			linesCols = NULL
 			linesNames = NULL
-			linewLWD = NULL
+			linesLWD = NULL
 			}
 		if(any(allSepCols))
 			{
