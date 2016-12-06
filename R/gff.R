@@ -17,10 +17,10 @@ getAttributeField <- function (x, field, attrsep = ";") {
 }
 
 
-gffRead <- function(gffFile, nrows = -1) {
+gffRead <- function(gffFile, nrows = -1, skip = 0) {
      cat("Reading ", gffFile, ": ", sep="")
      gff = read.table(gffFile, sep="\t", as.is=TRUE, quote="",
-     header=FALSE, comment.char="#", nrows = nrows,
+     header=FALSE, comment.char="#", nrows = nrows, skip = skip,
      colClasses=c("character", "character", "character", "integer",  
 "integer",
      "character", "character", "character", "character"))
