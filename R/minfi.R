@@ -44,7 +44,6 @@ minfiPipeline = function(dataDir,outDir=getwd(),nCells=5,legendloc="topleft",plo
 	save(list="funnorm",file=paste0(outDir,"/funnorm-droppedSnps.Rdata"))
 	# get betas
 	betas = getBeta(funnorm)
-	manifest = getManifest(RGset)
 	annotation = getAnnotation(funnorm)
 	# remove sex probes
 	sexProbes = rownames(annotation)[which(annotation[,"chr"]%in%c("chrX","chrY"))]
