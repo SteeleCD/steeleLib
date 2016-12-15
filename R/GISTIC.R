@@ -49,7 +49,7 @@ conumeeToGISTIC = function(dir,ignore=NULL,outFile="seg.txt")
 	out = NULL
 	for(i in 1:length(files))
 		{
-		load(files[i])
+		load(paste0(dir,"/",files[i]))
 		tmp = x@seg$summary
 		tmp[,"seg.median"] = tmp[,"seg.median"]-x@bin$shift
 		tmp[,1] = strsplit(files[i],split="-")[[1]][1]
