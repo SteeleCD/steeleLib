@@ -66,7 +66,10 @@ DMRinfo = function(dmrFile,# DMR file from bumphunter
 		}
 	# volcano plot
 	zeroBool = dmr[,threshType]==0
+  if(any(zeroBool))
+  {
 	dmr[which(zeroBool),threshType] = min(dmr[-which(zeroBool),threshType])
+  }
 	pdf(paste0(outDir,"/volcano.pdf"))
 	colours = ifelse(dmr[,threshType]<thresh,"green4","black")
 	colours[which(zeroBool)] = "red"
