@@ -4,7 +4,7 @@ assignFolders = function()
 	if(user=='c.steele')
 		{
 		# MAC
-		patholDir='/Volumes/pathology$/'
+		patholDir='/Volumes/grp13$/CI_POGB_Pathology/'
 		ucbtcdsDir='/Volumes/ucbtcdsh$/'
 		commonDir='/Volumes/common$/'
 		grpDir='/Volumes/grp11$/CI_Pathology_Steele/'
