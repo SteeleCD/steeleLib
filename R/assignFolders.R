@@ -11,7 +11,7 @@ assignFolders = function()
 		dropDir='/Users/c.steele/Dropbox/'
 		} else if(user=='chris') {
 		# WORK
-		patholDir='/media/pathology/'
+		patholDir='/media/pathology/CI_POGB_Pathology/'
 		ucbtcdsDir='/media/ucbtcds/'
 		commonDir='/media/common/'
 		grpDir='/media/grp11/CI_Pathology_Steele/'
