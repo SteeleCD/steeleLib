@@ -19,13 +19,13 @@ GOenrichmentMethy = function(geneFile=NULL,outDir,array="EPIC")
 	enrich = goseq(pwf,"hg19","geneSymbol")
 	# signifantly enriched
 	sigIndex = p.adjust(enrich$over_represented_pvalue,method="BH")<0.05
-	write.table(enrich[which(sigIndex&enrich$ontology=="BP"),],file=paste0(outDir,"/correctedSigGO-BP.csv"),row.names=FALSE,quote=FALSE,sep="\t")
-	write.table(enrich[which(sigIndex&enrich$ontology=="CC"),],file=paste0(outDir,"/correctedSigGO-CC.csv"),row.names=FALSE,quote=FALSE,sep="\t")
-	write.table(enrich[which(sigIndex&enrich$ontology=="MF"),],file=paste0(outDir,"/correctedSigGO-MF.csv"),row.names=FALSE,quote=FALSE,sep="\t")
+	write.table(enrich[which(sigIndex&enrich$ontology=="BP"),],file=paste0(outDir,"/correctedSigGO-BP.txt"),row.names=FALSE,quote=FALSE,sep="\t")
+	write.table(enrich[which(sigIndex&enrich$ontology=="CC"),],file=paste0(outDir,"/correctedSigGO-CC.txt"),row.names=FALSE,quote=FALSE,sep="\t")
+	write.table(enrich[which(sigIndex&enrich$ontology=="MF"),],file=paste0(outDir,"/correctedSigGO-MF.txt"),row.names=FALSE,quote=FALSE,sep="\t")
 	# no correction
 	enrichNormal = goseq(pwf,"hg19","geneSymbol",method="Hypergeometric")
 	sigIndexNorm = p.adjust(enrichNormal$over_represented_pvalue,method="BH")<=0.05
-	write.table(enrichNormal[which(sigIndexNorm&enrichNormal$ontology=="BP"),],file=paste0(outDir,"/uncorrectedSigGO-BP.csv"),row.names=FALSE,quote=FALSE,sep="\t")
-	write.table(enrichNormal[which(sigIndexNorm&enrichNormal$ontology=="CC"),],file=paste0(outDir,"/uncorrectedSigGO-CC.csv"),row.names=FALSE,quote=FALSE,sep="\t")
-	write.table(enrichNormal[which(sigIndexNorm&enrichNormal$ontology=="MF"),],file=paste0(outDir,"/uncorrectedSigGO-MF.csv"),row.names=FALSE,quote=FALSE,sep="\t")
+	write.table(enrichNormal[which(sigIndexNorm&enrichNormal$ontology=="BP"),],file=paste0(outDir,"/uncorrectedSigGO-BP.txt"),row.names=FALSE,quote=FALSE,sep="\t")
+	write.table(enrichNormal[which(sigIndexNorm&enrichNormal$ontology=="CC"),],file=paste0(outDir,"/uncorrectedSigGO-CC.txt"),row.names=FALSE,quote=FALSE,sep="\t")
+	write.table(enrichNormal[which(sigIndexNorm&enrichNormal$ontology=="MF"),],file=paste0(outDir,"/uncorrectedSigGO-MF.txt"),row.names=FALSE,quote=FALSE,sep="\t")
 	}
