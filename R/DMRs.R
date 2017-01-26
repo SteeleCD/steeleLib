@@ -75,7 +75,7 @@ fillColours = function(colour,n,doSep=FALSE)
 plotDMR = function(betas,dmrs,index,manifest,flank=10000,
 		groupIndices,doInvLogit=TRUE,xOffset=10,
 		plotRatio=TRUE,plotAll=FALSE,allSepCols=FALSE,colours=NULL,
-		customTitle=NULL,doLegend=FALSE,legloc="topleft")
+		customTitle=NULL,doLegend=FALSE,legloc="topleft",doSmooth=TRUE)
 	{
 	# colours
 	if(is.null(colours)) colours = 1:length(groupIndices)
@@ -89,14 +89,16 @@ plotDMR = function(betas,dmrs,index,manifest,flank=10000,
 		allSepCols = rep(allSepCols,length(groupIndices))	
 		}
 	nGroups = sapply(groupIndices,length)
-	allCols = unlist(sapply(1:length(groupIndices),FUN=function(x) rep(colours[x],times=length(groupIndices[[x]]))))
+	allCols = vector(length=length(unlist(groupIndices)))
+	for(j in 1:length(groupIndices)) allCols[groupIndices[[j]]] = colours[j]
+	#allCols = unlist(sapply(1:length(groupIndices),FUN=function(x) rep(colours[x],times=length(groupIndices[[x]]))))
 	if(any(allSepCols)) 
 		{
 		sepCols = rainbow(sum(nGroups[which(allSepCols)]))
 		allCols[unlist(groupIndices[which(allSepCols)])] = sepCols
 		}
 	# get values in region
-	region = getRegion(betas,dmrs[index,"chr"],dmrs[index,"start"],dmrs[index,"end"],manifest,flank)
+	region = steeleLib:::getRegion(betas,dmrs[index,"chr"],dmrs[index,"start"],dmrs[index,"end"],manifest,flank)
 	# get positions
 	pos1 = matrix(region$pos,ncol=length(groupIndices[[1]]),nrow=nrow(region$betas))
 	pos2 = matrix(region$pos,ncol=length(groupIndices[[2]]),nrow=nrow(region$betas))
@@ -123,7 +125,8 @@ plotDMR = function(betas,dmrs,index,manifest,flank=10000,
 	if(plotRatio)
 		{
 		# plot ratio of betas in two groups		
-		ratios = smooth(log(rowMeans(region$betas[,groupIndices[[1]],drop=FALSE])[toOrder]/rowMeans(region$betas[,groupIndices[[2]],drop=FALSE])[toOrder]))
+		ratios = log(rowMeans(region$betas[,groupIndices[[1]],drop=FALSE])[toOrder]/rowMeans(region$betas[,groupIndices[[2]],drop=FALSE])[toOrder])
+		if(doSmooth) ratios = smooth(ratios) 
 		plot(positions,ratios,type="l",col="black",lwd=2,xlab=XLAB,ylab="log(ratio)",main=TITLE,xaxt=XAXT)
 		abline(h=0,lty=2)
 		} else {
@@ -135,13 +138,28 @@ plotDMR = function(betas,dmrs,index,manifest,flank=10000,
 			{
 			# plot group means
 			#lines(positions,smooth(rowMeans(region$betas[,groupIndices[[i]],drop=FALSE])[toOrder]),lty=1,lwd=2,col=colours[i])
-			smoothBetas = apply(region$betas[toOrder,groupIndices[[i]],drop=FALSE],MARGIN=2,smooth)
-			if(!is.matrix(smoothBetas)) smoothBetas = t(smoothBetas)
-			lines(positions,rowMeans(smoothBetas),lty=1,lwd=2,col=colours[i])
+			if(doSmooth) 
+				{
+				plotBetas = apply(region$betas[toOrder,groupIndices[[i]],drop=FALSE],MARGIN=2,smooth)
+				} else {
+				plotBetas = region$betas[toOrder,groupIndices[[i]],drop=FALSE]
+				}
+			if(!is.matrix(plotBetas)) plotBetas = t(plotBetas)
+			lines(positions,rowMeans(plotBetas),lty=1,lwd=2,col=colours[i])
 			# plot individual betas
 			if(plotAll[i])
 				{
-				sapply(groupIndices[[i]],FUN=function(x) lines(positions,smooth(region$betas[,x][toOrder]),lty=2,lwd=1,col=allCols[x]))
+				#matplot(x=positions,y=plotBetas,lty=2,col=allCols[groupIndices[[i]]],add=TRUE,type="l")
+				sapply(groupIndices[[i]],FUN=function(x) 
+					{
+					if(doSmooth) 
+						{
+						toPlot = smooth(region$betas[,x][toOrder])
+						} else {
+						toPlot = region$betas[,x][toOrder]
+						}
+					lines(positions,toPlot,lty=2,lwd=1,col=allCols[x])
+					})
 				}
 			}
 		}

@@ -165,6 +165,18 @@ DMRinfo = function(dmrFile,# DMR file from bumphunter
 		plot(sigDMRs[exonicIndex,"value"],-log(sigDMRs[exonicIndex,threshType]),pch=PCH[exonicIndex],col=colours[exonicIndex],xlab="Beta difference",ylab=paste0("-log(",threshType,")"))
 		dev.off()}
 	write.csv(cbind(sigDMRs,matched),paste0(outDir,"/annotatedDMRs.csv"))
+	# GO enrichment
+	system(paste0("mkdir ",outDir,"/GO"))
+	system(paste0("mkdir ",outDir,"/GO/up"))
+	system(paste0("mkdir ",outDir,"/GO/down"))
+	GOenrichmentMethy(geneFile=paste0(outDir,"/promUpGenes"),
+		outDir=paste0(outDir,"/GO/up"),
+		array="EPIC")
+	GOenrichmentMethy(geneFile=paste0(outDir,"/promDownGenes"),
+		outDir=paste0(outDir,"/GO/down"),
+		array="EPIC")		
+	# KEGG enrichment
+	enrichKEGG(dataDir=outDir)
 	return(matched)
 	}
 
