@@ -52,7 +52,7 @@ minfiPipeline = function(dataDir,outDir=getwd(),nCells=5,legendloc="topleft",plo
 	betas = betas[which(rownames(betas)%in%probesToKeep),]
 	# save betas
 	colnames(betas) = sheet$Sample_Name
-	save(list="betas",file=paste0(outDir,"/betas-funnorm-dropSex-dropLowQ.Rdata"))
+	save(list=c("sheet","betas"),file=paste0(outDir,"/betas-funnorm-dropSex-dropLowQ.Rdata"))
 	# refactor estimation
 	if(!is.null(refactor))
 		{
