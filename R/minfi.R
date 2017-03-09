@@ -1,4 +1,4 @@
-minfiPipeline = function(dataDir,outDir=getwd(),nCells=5,legendloc="topleft",plotcolours=c("green","red","black","blue","cyan"),refactor=NULL,combat=NULL,toIgnore=NULL)
+minfiPipeline = function(dataDir,outDir=getwd(),nCells=5,legendloc="topleft",plotcolours=c("green","red","black","blue","cyan"),refactor=NULL,combat=NULL,toIgnore=NULL,badSampleCutoff=10.5)
 	{
 	# load in sample sheet
 	sheet = read.metharray.sheet(dataDir)
@@ -9,7 +9,8 @@ minfiPipeline = function(dataDir,outDir=getwd(),nCells=5,legendloc="topleft",plo
 	phenoData = pData(RGset)
 	Mset = preprocessRaw(RGset)
 	pdf(paste0(outDir,"/QCplot.pdf"))
-	plotQC(getQC(Mset))
+	plotQC(getQC(Mset),badSampleCutoff=1000)
+	abline(badSampleCutoff *2 , -1, lty = 2)
 	dev.off()
 	pdf(paste0(outDir,"/densityPlot.pdf"))
 	densityPlot(Mset,sampGroups=phenoData$Sample_Group)
