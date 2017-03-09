@@ -9,6 +9,7 @@ runPCA = function(file=NULL,data=NULL,fileOut=NULL)
 		data = norm$beta
 		}
 	pca = prcomp(t(data),retx=TRUE,center=TRUE,scale.=TRUE)
+	pca$varianceExplained = (pca$sdev)^2 / sum(pca$sdev^2) 
 	if(!is.null(fileOut))
 		{
 		save(list="pca",file=fileOut)
