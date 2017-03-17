@@ -1,3 +1,7 @@
+# =================================================================================
+# Functions for checking that a tumour VCF and normal VCF come from same individual
+# =================================================================================
+
 subsetVCF = function(vcfDat,chrom,pos)
 	{
 	index = mapply(FUN=function(c,p) which(vcfDat$CHROM==c&vcfDat$POS==p),c=chrom,p=pos)

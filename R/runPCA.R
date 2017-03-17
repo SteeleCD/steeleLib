@@ -1,3 +1,8 @@
+# ==========================================================================
+# functions for determing number of clusters using kMeans or hclust
+# =========================================================================
+
+# kMeans
 fitKmeans = function(data,nProbes,PCH,main="test")
 	{
 	# get SD
@@ -18,6 +23,7 @@ fitKmeans = function(data,nProbes,PCH,main="test")
 	return(fit)
 	}
 
+# hclust
 fitHclust = function(data,nProbes,PCH,main="test",distFun=function(x) cor(x),HCLUST="complete")
 	{
 	# get SD

@@ -1,3 +1,7 @@
+# ==================================================================
+# function for running principal components analysis
+# ==================================================================
+
 # run PC analysis
 runPCA = function(file=NULL,data=NULL,fileOut=NULL)
 	{

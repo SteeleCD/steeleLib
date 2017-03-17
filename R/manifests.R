@@ -1,3 +1,7 @@
+# ================================================================
+# functions for working with methylation manifests
+# ================================================================
+
 # function to load manifests
 getManifest = function(array="EPIC")
 {

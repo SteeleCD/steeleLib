@@ -1,3 +1,8 @@
+# ================================================================
+# Conumee pipeline for copy number analysis from methylation array
+# ================================================================
+
+# function to get idat file names
 getFiles = function(base,dataDir)
 	{
 	basenames = list.files(file.path(base,dataDir))
@@ -9,7 +14,7 @@ getFiles = function(base,dataDir)
 	return(basenames)
 	}
 
-
+# conumee pipeline
 conumeePipeline = function(baseDir,dataDirs,outDir)
 	{
 	# get file names

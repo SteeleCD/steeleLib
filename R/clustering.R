@@ -1,3 +1,7 @@
+# ===========================================================
+# Functions for running clustering (hclust, kmeans)
+# ===========================================================
+
 # run heirarchical clustering
 runHclust = function(data,distMethFun=NULL,distMeth="euclidean",clustMeth="ward.D2",doGroups=FALSE,nGroups=5,groups=NULL,file=NULL,plotcolours=c("green","red","black","blue","cyan"))
 	{

@@ -1,6 +1,7 @@
 # ====================================================================
-#		Pipeline functions
+# Functions to define partially methylated domains - WIP
 # ====================================================================
+
 # split betas by chromosome
 splitBetas = function(chmrs,betas=betasSarc,intergenic=TRUE,mani)
 	{
@@ -47,7 +48,7 @@ windowMeanSD = function(pos,betas,windowSize=50000)
 	return(means)
 	}
 
-# get CPs 
+# get changepoints
 getCPs = function(betas,changeFilter=c(-0.1),colour="blue",
 	windowSize=30000,methodCP="PELT",pen="MBIC",penVal=0,
 	stat="Normal",plotGen=FALSE,plotCP=FALSE,split=TRUE,

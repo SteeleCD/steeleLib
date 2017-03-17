@@ -1,3 +1,7 @@
+# ================================================================
+# Useful functions for working with bioconductor
+# ================================================================
+
 # install package from bioconductor
 install.bioc = function(package)
 	{

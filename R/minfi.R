@@ -1,3 +1,7 @@
+# ==========================================================================
+# pipeline for running minfi inc. normalisation etc
+# ==========================================================================
+
 minfiPipeline = function(dataDir,outDir=getwd(),nCells=5,legendloc="topleft",plotcolours=c("green","red","black","blue","cyan"),refactor=NULL,combat=NULL,toIgnore=NULL,badSampleCutoff=10.5)
 	{
 	# load in sample sheet

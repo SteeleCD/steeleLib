@@ -1,5 +1,8 @@
+# ================================================================
 # From refactor. See:
 # https://www.cs.tau.ac.il/~heran/cozygene/software/refactor.html
+# ================================================================
+
 refactor <- function(data_file, k, covarfile = NULL, t = 500, numcomp = NULL, stdth = 0.02, out = "refactor") {
 
     ranked_filename = paste(out, ".out.rankedlist.txt", sep="")

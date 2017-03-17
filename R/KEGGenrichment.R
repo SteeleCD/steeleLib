@@ -1,3 +1,8 @@
+# ================================================================
+# KEGG enrichment from methylation data
+# ================================================================
+
+
 enrichKEGG = function(dataDir,upFile="promUpGenes.txt",downFile="promDownGenes.txt",array="EPIC")
 	{
 	library(clusterProfiler)

@@ -1,3 +1,6 @@
+# ==================================================================
+# plot densities, highlighting certain samples
+# ==================================================================
 
 highlightInds = function(data,inds,colour="red",MAIN=NULL)
 	{

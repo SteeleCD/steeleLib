@@ -1,4 +1,9 @@
+# ===========================================================
+# Functions for defining methylation bumps in density plots
+# ===========================================================
+
 # get bump limits using a sliding window and change of gradient
+# this is the preferred method
 getBumpLimsWindow = function(betas,windowSize=50,negCount=c(-20),gradLimit=10,sevLimit=c(-100),retLim=TRUE,combine=TRUE,plotDiag=FALSE,doAUC=FALSE)
 {
 if(plotDiag)

@@ -1,3 +1,4 @@
+# QOL function for setting various commmonly used directories across different PCs/clusters
 assignFolders = function()
 	{
 	user = Sys.info()['user']

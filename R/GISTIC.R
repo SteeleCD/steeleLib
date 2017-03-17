@@ -1,3 +1,8 @@
+# ================================================================
+# utility functions for getting GISTIC inputs from various tools
+# ================================================================
+
+
 # from champ output to GISTIC seg file
 champToGistic=function(dir)
 	{

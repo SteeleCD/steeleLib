@@ -1,3 +1,7 @@
+# ================================================================
+# Functions for plotting DMRs
+# ================================================================
+
 # function to get genes that overlap a region
 getOverlapGenes = function(chr,start,end)
 	{

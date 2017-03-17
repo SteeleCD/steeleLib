@@ -1,3 +1,7 @@
+# ==================================================================
+# plotting copy number segments
+# ==================================================================
+
 check = function(toCheck)
 	{
 	isNull = is.null(toCheck)
@@ -9,6 +13,7 @@ check = function(toCheck)
 	return(FALSE)
 	}
 
+# combined segments with low numbers of markers
 combineSegs = function(chromData,nMin=15)
 	{
 	toSkip = NULL
@@ -51,6 +56,7 @@ combineSegs = function(chromData,nMin=15)
 	chromData[-index,]
 	}
 
+# plot a single chromosome
 plotFun = function(seg.mean,num.mark,seg.start,seg.end,
 		YLIM,colours)
 	{
@@ -60,6 +66,7 @@ plotFun = function(seg.mean,num.mark,seg.start,seg.end,
 	sapply(1:length(seg.mean),FUN=function(x) lines(x=c(seg.start[x],seg.end[x]),y=rep(seg.mean[x],2),col=colours[num.mark][x],lwd=3))
 	}
 
+# plot all chromosomes
 plotByChrom = function(segFile=NULL,segObj=NULL,dataDir,
 		outDir,fileName='segsByChrom.pdf')
 	{
@@ -91,6 +98,7 @@ plotByChrom = function(segFile=NULL,segObj=NULL,dataDir,
 	dev.off()
 	}
 	
+# wrapper for plotting CN heatmap
 plotAbber = function(segFile=NULL,segObj=NULL,dataDir,
 		outDir=NULL,fileName="abberationPlot.pdf",
 		HEAD=TRUE,logCN=TRUE,thresh=0.2,combine=TRUE,

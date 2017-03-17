@@ -1,3 +1,7 @@
+# ===========================================================
+# QOL function for rbinding many files
+# ===========================================================
+
 combineFiles = function(files,outFile,sep="\t",head=TRUE,col.names=TRUE,row.names=FALSE,quote=FALSE)
 	{
 	out = NULL

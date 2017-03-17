@@ -1,3 +1,8 @@
+# ================================================================
+# Functions for annotating methylation DMRs
+# ================================================================
+
+
 # load up transcripts etc
 preDMR = function() 
 	{

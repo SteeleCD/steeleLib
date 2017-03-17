@@ -1,3 +1,7 @@
+# ===========================================================
+# Various function useful for working with beta distribution
+# ===========================================================
+
 # get beta mean from alpha and beta
 betaMean = function(a,b)
 	{

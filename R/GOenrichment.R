@@ -1,3 +1,7 @@
+# ================================================================
+# GO enrichment from methylation data
+# ================================================================
+
 GOenrichmentMethy = function(geneFile=NULL,outDir,array="EPIC")
 	{
 	library(goseq)

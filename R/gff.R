@@ -1,5 +1,7 @@
-# functions for reading gff
+# ================================================================
+# functions for reading gff files
 # https://stat.ethz.ch/pipermail/bioconductor/2008-October/024669.html
+# ================================================================
 
 getAttributeField <- function (x, field, attrsep = ";") {
      s = strsplit(x, split = attrsep, fixed = TRUE)
