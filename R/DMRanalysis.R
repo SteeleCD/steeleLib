@@ -182,7 +182,7 @@ DMRinfo = function(dmrFile,# DMR file from bumphunter
 		array="EPIC")		
 	# KEGG enrichment
 	enrichKEGG(dataDir=outDir)
-	return(matched)
+	return(cbind(sigDMRs,matched))
 	}
 
 # cross reference gene list with COSMIC

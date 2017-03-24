@@ -32,8 +32,6 @@ export(plotDMR)
 export(sequenzaToGistic)
 export(DMRinfo)
 
-importFrom('ChAMP','champ.load','champ.norm','champ.SVD',
-	'champ.CNA','champ.DMR','champ.MVP','champ.runCombat')
 importFrom('conumee','CNV.create_anno','CNV.load','CNV.fit',
 	'CNV.bin','CNV.detail','CNV.segment','CNV.genomeplot')
 importFrom('minfi','read.metharray.sheet','read.metharray.exp',
