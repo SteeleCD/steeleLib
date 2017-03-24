@@ -27,7 +27,9 @@ DMRinfo = function(dmrFile,# DMR file from bumphunter
 		fwerThresh=0.1,
 		pThresh = 0.05,
 		doP = TRUE,
-		outDir) 
+		outDir,
+		doGO=TRUE,
+		doKEGG=FALSE) 
 	{
 	preDMRinfo = preDMR()
 	# set threshold
@@ -171,6 +173,8 @@ DMRinfo = function(dmrFile,# DMR file from bumphunter
 		dev.off()}
 	write.csv(cbind(sigDMRs,matched),paste0(outDir,"/annotatedDMRs.csv"))
 	# GO enrichment
+	if(doGO)
+	{
 	system(paste0("mkdir ",outDir,"/GO"))
 	system(paste0("mkdir ",outDir,"/GO/up"))
 	system(paste0("mkdir ",outDir,"/GO/down"))
@@ -180,10 +184,14 @@ DMRinfo = function(dmrFile,# DMR file from bumphunter
 	GOenrichmentMethy(geneFile=paste0(outDir,"/promDownGenes.txt"),
 		outDir=paste0(outDir,"/GO/down"),
 		array="EPIC")		
+	}
 	# KEGG enrichment
+	if(doKEGG)
+	{
 	enrichKEGG(dataDir=outDir,
 	           upFile=paste0(outDir,"/promUpGenes.txt"),
 	           downFile=paste0(outDir,"/promDownGenes.txt"))
+	}
 	return(cbind(sigDMRs,matched))
 	}
 
