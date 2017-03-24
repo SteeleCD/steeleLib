@@ -174,14 +174,16 @@ DMRinfo = function(dmrFile,# DMR file from bumphunter
 	system(paste0("mkdir ",outDir,"/GO"))
 	system(paste0("mkdir ",outDir,"/GO/up"))
 	system(paste0("mkdir ",outDir,"/GO/down"))
-	GOenrichmentMethy(geneFile=paste0(outDir,"/promUpGenes"),
+	GOenrichmentMethy(geneFile=paste0(outDir,"/promUpGenes.txt"),
 		outDir=paste0(outDir,"/GO/up"),
 		array="EPIC")
-	GOenrichmentMethy(geneFile=paste0(outDir,"/promDownGenes"),
+	GOenrichmentMethy(geneFile=paste0(outDir,"/promDownGenes.txt"),
 		outDir=paste0(outDir,"/GO/down"),
 		array="EPIC")		
 	# KEGG enrichment
-	enrichKEGG(dataDir=outDir)
+	enrichKEGG(dataDir=outDir,
+	           upFile=paste0(outDir,"/promUpGenes.txt"),
+	           downFile=paste0(outDir,"/promDownGenes.txt"))
 	return(cbind(sigDMRs,matched))
 	}
 
