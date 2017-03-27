@@ -32,8 +32,11 @@ getManifest = function(array="EPIC")
                      Other)
   } else {
     library(IlluminaHumanMethylation450kanno.ilmn12.hg19)  
-    manifest = cbind(IlluminaHumanMethylation450kanno.ilmn12.hg19@data$Locations, 
-                     IlluminaHumanMethylation450kanno.ilmn12.hg19@data$Other)
+    data(IlluminaHumanMethylation450kanno.ilmn12.hg19)
+    data(Locations)
+    data(Other)
+    manifest = cbind(Locations, 
+                     Other)
   }
   return(manifest)
 }
