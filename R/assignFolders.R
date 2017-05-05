@@ -16,6 +16,7 @@ assignFolders = function()
 		ucbtcdsDir='/media/ucbtcds/'
 		commonDir='/media/common/'
 		grpDir='/media/grp11/CI_Pathology_Steele/'
+		grpDir2='/run/user/1000/gvfs/smb-share:server=file03.ucl.ac.uk,share=grp11$/CI_Pathology_Steele/'
 		dropDir='/home/chris/Dropbox/'
 		} else {
 		# LEGION
@@ -23,11 +24,13 @@ assignFolders = function()
 		}
 	if(user%in%c('c.steele','chris'))
 		{
-		return(list(patholDir=patholDir,
+		out = list(patholDir=patholDir,
 			ucbtcdsDir=ucbtcdsDir,
 			commonDir=commonDir,
 			grpDir=grpDir,
-			dropDir=dropDir))
+			dropDir=dropDir)
+		if(user=="chris") out = append(out,list(grpDir2=grpDir2))
+		return(out)
 		} else {
 		return(list(scratchDir=scratchDir))
 		}
