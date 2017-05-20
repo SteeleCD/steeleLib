@@ -26,7 +26,7 @@ plotPCA = function(pca,fileName=NULL,outDir,groups,
 		colours=NULL,colFun=NULL,subset=NULL,
 		arrows=FALSE,nArrows=10,xlim=NULL,
 		ylim=NULL,PCs=c(1,2),amplifyArrows=4,
-		legendloc="topleft")
+		legendloc="topleft",doLegend=TRUE)
 	{
 	if(!is.null(subset))
 		{
@@ -59,7 +59,10 @@ plotPCA = function(pca,fileName=NULL,outDir,groups,
 	  arrowData = pcaArrows(pca,x=paste0("PC",PCs[1]),y=paste0("PC",PCs[2]),ntop=nArrows)
 	  arrows(x0=rep(0,times=nArrows),y0=rep(0,times=nArrows),x1=arrowData$x*amplifyArrows,y1=arrowData$y*amplifyArrows)
 	}
-	legend(legendloc, legend = levels(groups), col = colours, cex = 0.8, pch = 1)
+	if(doLegend)
+		{
+		legend(legendloc, legend = levels(groups), col = colours, cex = 0.8, pch = 1)
+		}
 	if(!is.null(fileName)) dev.off()
 }
 
