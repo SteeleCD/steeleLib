@@ -46,12 +46,12 @@ plotPCA = function(pca,fileName=NULL,outDir,groups,
 	if(is.null(xlim)) xlim=range(pca$x[,PCs[1]])
 	if(is.null(ylim)) ylim=range(pca$x[,PCs[2]])
 	if(!is.null(fileName)) pdf(paste0(outDir,"/",fileName))
-	XLAB = colnames(pca$x[PCs[1]])
-	YLAB = colnames(pca$x[PCs[2]])
+	XLAB = paste0("PC",PCs[1])
+	YLAB = paste0("PC",PCs[2])
 	if(!is.null(pca$varianceExplained))
 		{
-		XLAB = paste0(XLAB," (",round(pca$varianceExplained[PCs[1]],1),"%)")
-		YLAB = paste0(YLAB," (",round(pca$varianceExplained[PCs[2]],1),"%)")
+		XLAB = paste0(XLAB," (",round(pca$varianceExplained[PCs[1]]*100,1),"%)")
+		YLAB = paste0(YLAB," (",round(pca$varianceExplained[PCs[2]]*100,1),"%)")
 		}
 	plot(pca$x[,c(PCs[1],PCs[2])],col=colours[groups],xlim=xlim,ylim=ylim,xlab=XLAB,ylab=YLAB)
 	if(arrows)
