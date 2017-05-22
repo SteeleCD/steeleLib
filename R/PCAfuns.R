@@ -23,17 +23,18 @@ runPCA = function(file=NULL,data=NULL,fileOut=NULL)
 
 # plot PCA results
 plotPCA = function(pca,fileName=NULL,outDir,groups,
-		colours=NULL,colFun=NULL,subset=NULL,
+		colours=NULL,PCH=NULL,colFun=NULL,subset=NULL,
 		arrows=FALSE,nArrows=10,xlim=NULL,
 		ylim=NULL,PCs=c(1,2),amplifyArrows=4,
 		legendloc="topleft",doLegend=TRUE)
-	{
+	{	
 	if(!is.null(subset))
 		{
 		pca$x = pca$x[subset,]
 		groups = groups[subset]
 		}
 	groups = as.factor(paste0(groups))
+	if(is.null(PCH)) PCH=rep(1,times=nrow(pca$x))
 	if(is.null(colours))
 		{
 		if(is.null(colFun))
@@ -53,7 +54,7 @@ plotPCA = function(pca,fileName=NULL,outDir,groups,
 		XLAB = paste0(XLAB," (",round(pca$varianceExplained[PCs[1]]*100,1),"%)")
 		YLAB = paste0(YLAB," (",round(pca$varianceExplained[PCs[2]]*100,1),"%)")
 		}
-	plot(pca$x[,c(PCs[1],PCs[2])],col=colours[groups],xlim=xlim,ylim=ylim,xlab=XLAB,ylab=YLAB)
+	plot(pca$x[,c(PCs[1],PCs[2])],col=colours[groups],xlim=xlim,ylim=ylim,xlab=XLAB,ylab=YLAB,pch=PCH)
 	if(arrows)
 	{
 	  arrowData = pcaArrows(pca,x=paste0("PC",PCs[1]),y=paste0("PC",PCs[2]),ntop=nArrows)
