@@ -11,7 +11,8 @@ GOenrichmentMethy = function(geneFile=NULL,outDir,array="EPIC")
 	allGenes = sapply(manifest$UCSC_RefGene_Name,FUN=function(x) unique(strsplit(x,split=";")[[1]]))
 	allGenes = table(unlist(allGenes))
 	# read in DM genes
-	DMG = read.table(geneFile)
+	DMG = read.table(geneFile,col.names="gene")
+	if(nrow(DMG)==0) return()
 	# put in right format for goseq
 	data = as.numeric(names(allGenes)%in%DMG[,1])
 	names(data) = names(allGenes)
