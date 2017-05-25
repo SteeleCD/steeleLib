@@ -56,7 +56,7 @@ enrichment = function(genes,background)
   enrich = goseq(pwf,"hg19","geneSymbol",method="Hypergeometric")
   # significantly enriched
   sigIndex = p.adjust(enrich$over_represented_pvalue,method="BH")<=0.05
-  return(enrich[which(sigIndex,])
+  return(enrich[which(sigIndex),])
 }
 
 
