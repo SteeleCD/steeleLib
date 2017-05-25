@@ -35,6 +35,7 @@ GOenrichmentMethy = function(geneFile=NULL,outDir,array="EPIC")
 	write.table(enrichNormal[which(sigIndexNorm&enrichNormal$ontology=="MF"),],file=paste0(outDir,"/uncorrectedSigGO-MF.txt"),row.names=FALSE,quote=FALSE,sep="\t")
 }
 
+# function to get methylation array background
 getGeneBackground = function(array)
 {
   # get manifest
@@ -45,6 +46,7 @@ getGeneBackground = function(array)
   return(allGenes)
 }
 
+# single GO enrichment analysis
 enrichment = function(genes,background)
 {
   # get data in right format
@@ -59,22 +61,32 @@ enrichment = function(genes,background)
   return(enrich[which(sigIndex),])
 }
 
-
+# run a single bootstrap
 singleBootstrap = function(nGenes,geneBackground)
 {
   genes = sample(names(geneBackground),nGenes)
   enrichment(genes,geneBackground)
 }
 
-bootstrapEnrichment = function(nGenes,geneBackground=NULL,nBootstrap=1000,array="EPIC")
+# run enrichment nBootstrap times
+bootstrapEnrichment = function(nGenes,geneBackground=NULL,nBootstrap=1000,array="EPIC",doParallel=FALSE,nCores=NULL)
 {
   # gene background
   if(is.null(geneBackground)) geneBackground = getGeneBackground(array)
   # perform multiple enrichment analyses
-  res = replicate(nBootstrap, singleBootstrap(nGenes,geneBackground))
+  if(doParallel)
+	{
+	if(is.null(nCores)) nCores = detectCores()
+	res = mclapply(1:nBootstrap,FUN=function(x) singleBootstrap(nGenes,geneBackground),mc.cores=nCores)
+	} else {
+  	res = replicate(nBootstrap, singleBootstrap(nGenes,geneBackground),simplify=FALSE)
+	}
+  res = do.call(rbind,res)
+  return(res)
 }
 
-GOenrichPipeline = function(geneFile=NULL,outDir,array="EPIC",nBootstrap=1000)
+# pipeline to perform GO enrichment, and bootstrapping 
+GOenrichPipeline = function(geneFile=NULL,outDir,array="EPIC",nBootstrap=1000,doParallel=FALSE,nCores=NULL)
 {
   library(goseq)
   # get background
@@ -90,7 +102,9 @@ GOenrichPipeline = function(geneFile=NULL,outDir,array="EPIC",nBootstrap=1000)
     bootstrap = bootstrapEnrichment(nGenes=nrow(DMG),
                                     geneBackground=geneBackground,
                                     nBootstrap=nBootstrap,
-                                    array=array)
+                                    array=array,
+				    doParallel=doParallel,
+				    nCores=nCores)
     enriched$FDR = sapply(enriched$category,FUN=function(x) 
           sum(bootstrap$category==x)/nBootstrap)
     return(enriched)
