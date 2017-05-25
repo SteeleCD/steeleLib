@@ -49,9 +49,9 @@ enrichment = function(genes,background)
 {
   # get data in right format
   data = as.numeric(names(background)%in%genes)
-  names(data) = names(allGenes)
+  names(data) = names(background)
   # p null
-  pwf = nullp(genes,"hg19","geneSymbol",bias.data=as.integer(background))
+  pwf = nullp(data,"hg19","geneSymbol",bias.data=as.integer(background))
   # enrichment
   enrich = goseq(pwf,"hg19","geneSymbol",method="Hypergeometric")
   # significantly enriched
@@ -83,7 +83,7 @@ GOenrichPipeline = function(geneFile=NULL,outDir,array="EPIC",nBootstrap=1000)
   DMG = read.table(geneFile,col.names="gene")
   if(nrow(DMG)==0) return()
   # enrichment
-  enriched = enrichment(DMG$gene)
+  enriched = enrichment(DMG$gene,geneBackground)
   # bootsrap
   if(nBootstrap>0)
   {
