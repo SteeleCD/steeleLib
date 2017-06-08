@@ -189,8 +189,8 @@ DMRinfo = function(dmrFile,# DMR file from bumphunter
 	if(doKEGG)
 	{
 	enrichKEGG(dataDir=outDir,
-	           upFile=paste0(outDir,"/promUpGenes.txt"),
-	           downFile=paste0(outDir,"/promDownGenes.txt"))
+	           upFile="promUpGenes.txt",
+	           downFile="promDownGenes.txt")
 	}
 	return(cbind(sigDMRs,matched))
 	}

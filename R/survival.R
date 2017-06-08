@@ -52,3 +52,4 @@ plotCox = function(coxPH,data,whichPlot,whichKeep=NULL,outFile=NULL,colour=NULL)
 	return(newData)
 	}
 
+
