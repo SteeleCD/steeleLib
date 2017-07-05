@@ -66,6 +66,28 @@ getGeneHomDel = function(seg,			# seg file
 	return(any(seg.overlap[,CNcol]==0))
 	}
 
+# function to obtain CN at a gene
+getGeneCN = function(seg,			# seg file
+			chr,			# gene chromosome
+			start,			# gene start
+			end,			# gene end
+			totCNcol=12,		# total CN column
+			aCNcol=13,		# A allele CN column
+			bCNcol=14,		# B allele CN column
+			chromCol=3,		# chromosome seg column
+			startCol=4,		# start seg column
+			endCol=5		# end seg column
+			)
+	{
+	CNcols=c(totCNcol,aCNcol,bCNcol)
+	seg.info = paste0("chr",seg[,chromCol],":",seg[,startCol],"-",seg[,endCol])
+	seg.gr = as(seg.info,"GRanges")
+	gene.gr = as(paste0(chr,":",start,"-",end),"GRanges")
+	overlap = findOverlaps(seg.gr,gene.gr)
+	seg.overlap = seg[overlap@from,]
+	return(seg.overlap)
+	}
+
 # function to get gene information
 getGeneInfo = function(genesIn)
 	{
