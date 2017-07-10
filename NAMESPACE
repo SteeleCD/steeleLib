@@ -53,7 +53,7 @@ export(minfiPipeline)
 export(preDMR)
 export(DMRinfo)
 # bumps.R
-export(getBumpsLimsWindow)
+export(getBumpLimsWindow)
 # chromothripsis.R
 export(chromothripsis)
 # genomeDoubling.R
@@ -65,7 +65,7 @@ export(getGeneInfo)
 export(getGeneCN)
 export(getGeneHomDel)
 export(getGeneLOH)
-export(getGenegetGeneAmpDel)
+export(getGeneAmpDel)
 # plotLM.R
 export(plotLM)
 # PMDs.R
