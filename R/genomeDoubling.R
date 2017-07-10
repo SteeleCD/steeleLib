@@ -269,7 +269,7 @@ genomeDoubling = function(segFile,	# segment file
 	print("load arm lims")
 	armLims = getArmLims(armFile)
 	# get segs
-	if(!is.character(segFile))
+	if(is.character(segFile))
 		{
 		print("load seg")
 		if(grepl("[.]csv",segFile))
