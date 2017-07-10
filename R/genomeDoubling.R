@@ -269,12 +269,17 @@ genomeDoubling = function(segFile,	# segment file
 	print("load arm lims")
 	armLims = getArmLims(armFile)
 	# get segs
-	print("load seg")
-	if(grepl("[.]csv",segFile))
+	if(!is.character(segFile))
 		{
-		seg = read.csv(segFile,head=head,as.is=TRUE)
+		print("load seg")
+		if(grepl("[.]csv",segFile))
+			{
+			seg = read.csv(segFile,head=head,as.is=TRUE)
+			} else {
+			seg = read.table(segFile,head=head,sep="\t",as.is=TRUE)  
+			}
 		} else {
-		seg = read.table(segFile,head=head,sep="\t",as.is=TRUE)  
+		seg = segFile
 		}
 	# reformat sex chromosome names
 	print("formatting")
