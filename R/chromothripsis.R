@@ -149,3 +149,49 @@ splitWindow = function(bedpe,seg,size=50000000,chromCol=2,startCol=3,endCol=4,ch
 	return(res)
 	}
 
+# function to run whole chromothripsis analysis
+chromothripsis = function(segFile,bedpeDir,
+			size=50000000, # window size
+			chromCol=2, # seg chrom col
+			startCol=3, # seg start col
+			endCol=4, # seg end col
+			chromCol1=1, # bedpe chrom1 col
+			posCol1=2, # bedpe pos1 col
+			chromCol2=4, # bedpe chrom2 col
+			posCol2=5, # bedpe pos2col
+			segSampleCol=1 # seg sample col
+			) 
+	{
+	# read in seg file
+	seg = read.table(segFile,sep="\t")
+	samples = unique(seg[,segSampleCol])
+	# run analysis per sample per chromosome
+	# loop over samples
+	Ps = sapply(samples,FUN=function(y)
+		{
+		print(y)
+		# load bedpe for this sample
+		bedpe = read.table(paste0(bedpeDir,"/",y,".brass.annot.bedpe.gz"),sep="\t")
+		# loop over chromosomes
+		res = sapply(unique(bedpe[,c(chromCol1,chromCol2)]),FUN=function(x)
+			{
+			print(x)
+			splitWindow(bedpe=bedpe[which(paste0(bedpe[,bedpeChromCol1])==paste0(x)|
+					paste0(bedpe[,bedpeChromCol2])==paste0(x)),],
+				seg=seg[which(paste0(seg[,segSampleCol])==paste0(y)&
+					paste0(seg[,chromCol])==paste0(x)),],
+				size=size,
+				chromCol=chromCol,
+				startCol=startCol,
+				endCol=endCol,
+				chromCol1=chromCol1,
+				posCol1=posCol1,
+				chromCol2=chromCol2,
+				posCol2=posCol2)})
+		names(res) = samples
+		return(res)
+		},simplify=FALSE)
+	names(Ps) = samples
+	return(Ps)
+	}
+

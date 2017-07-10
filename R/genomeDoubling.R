@@ -248,8 +248,8 @@ swantonTest = function(allelecounts,testVal)
 #				WRAPPER FUNCTION
 # ======================================================================================
 
-# function to run full analysis
-runAnalysis = function(segFile,	# segment file
+# function to run full genome doubling analysis
+genomeDoubling = function(segFile,	# segment file
                        armFile,	# cytoband file
                        nReps=1000,	# number of simulations
                        scoreFUN=ABSOLUTEscore,	# score to get p value

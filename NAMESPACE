@@ -1,36 +1,73 @@
 #useDynLib(steeleLib)
+# assignFolders.R
 export(assignFolders)
+# GISTIC.R
 export(champToGistic)
 export(segToMarkers)
+export(conumeeToGISTIC)
+export(sequenzaToGistic)
+# combineFiles.R
 export(combineFiles)
 #export(runConumee)
+# createMarkersFile.R
 export(getMarkers)
+# DMRs.R
 export(plotVolcano)
+export(plotDMR)
+# installBioc.R
 export(install.bioc)
+# clustering.R
 export(kmeansAIC)
+export(runHclust)
+# myCHAMP.R
 export(mychamp.CNA)
+# ChAMP.R
 export(champPipeline)
+# PCAfuns.R
 export(runPCA)
 export(plotPCA)
+# plotFromSeg.R
 export(plotByChrom)
 export(plotAbber)
+# plotHighlighted.R
 export(highlightInds)
+# runHclustPCA.R
 export(runHCPC)
+# runMinfiEPIC.R
 export(runMinfi)
 export(runDMR)
+# runPCA.R
 export(fitKmeans)
 export(fitHclust)
-export(conumeeToGISTIC)
+# runCombat.R
 export(logit)
 export(invlogit)
+# betaDist.R
 export(betaMean)
 export(betaVar)
-export(runHclust)
+# refactor.R
 export(refactor)
+# minfi.R
 export(minfiPipeline)
-export(plotDMR)
-export(sequenzaToGistic)
+# DMRanalysis.R
+export(preDMR)
 export(DMRinfo)
+# bumps.R
+export(getBumpsLimsWindow)
+# chromothripsis.R
+export(chromothripsis)
+# genomeDoubling.R
+export(genomeDoubling)
+# survival.R
+export(plotCox)
+# geneCN.R
+export(getGeneInfo)
+export(getGeneCN)
+export(getGeneHomDel)
+export(getGeneLOH)
+export(getGenegetGeneAmpDel)
+# plotLM.R
+export(plotLM)
 
 importFrom('conumee','CNV.create_anno','CNV.load','CNV.fit',
 	'CNV.bin','CNV.detail','CNV.segment','CNV.genomeplot')
