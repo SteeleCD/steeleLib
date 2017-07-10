@@ -68,7 +68,7 @@ singleSamp = function(N,Ps,testProps,nReps=10000,testFUN=sampleSimScore,diag=FAL
 
 
 # split segments that cross arm boundaries
-splitSeg = function(x,split)
+splitSeg = function(x,split,startCol=4,endCol=5)
 	{
 	splitseg =  rbind(x,x)
 	splitseg[1,endCol] = split
@@ -101,7 +101,9 @@ getArmCN = function(seg,armLims,
 		segSub = seg[-which(crossMiddle),]
 		tmp = sapply(1:nrow(tmp),
 			FUN=function(x) splitSeg(tmp[x,,drop=FALSE],
-				armMiddles[tmp[x,chromCol]]),simplify=FALSE)
+				armMiddles[tmp[x,chromCol]],
+				startCol=startCol,
+				endCol=endCol),simplify=FALSE)
 		tmp = do.call(rbind,tmp)
 		segNew = rbind(segSub,tmp)
 		crossMiddleCheck = apply(segNew,MARGIN=1,FUN=function(x) 
