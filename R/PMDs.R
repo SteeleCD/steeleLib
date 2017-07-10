@@ -6,8 +6,8 @@
 splitBetas = function(chmrs,betas=betasSarc,intergenic=TRUE,mani)
 	{
 	# probes that match chms
-	index = which(mani$CHR==chmrs)
-	subManifest = mani[index,]
+	index = which(mani$chr==chmrs)
+	subManifest = mani[index,,drop=FALSE]
 	# intergenic
 	if(intergenic)
 		{
@@ -15,13 +15,13 @@ splitBetas = function(chmrs,betas=betasSarc,intergenic=TRUE,mani)
 		subManifest = subManifest[index,]
 		}
 	# probes in array
-	index = which(subManifest$IlmnID%in%rownames(betas))
+	index = which(rownames(subManifest)%in%rownames(betas))
 	subManifest = subManifest[index,]
 	# subset array
-	subBetas = betas[subManifest$IlmnID,]
+	subBetas = betas[rownames(subManifest),,drop=FALSE]
 	# order
-	subBetas = subBetas[order(subManifest$MAPINFO),]
-	rownames(subBetas) = subManifest$MAPINFO[order(subManifest$MAPINFO)]
+	subBetas = subBetas[order(subManifest$pos),,drop=FALSE]
+	rownames(subBetas) = subManifest$pos[order(subManifest$pos)]
 	return(subBetas)
 	}
 
@@ -48,12 +48,14 @@ windowMeanSD = function(pos,betas,windowSize=50000)
 	return(means)
 	}
 
-# get changepoints
-getCPs = function(betas,changeFilter=c(-0.1),colour="blue",
-	windowSize=30000,methodCP="PELT",pen="MBIC",penVal=0,
+# get CPs 
+# previous defaults
+# methodCP="PELT",pen="MBIC"
+definePMDs = function(betas,changeFilter=c(-0.1),colour="blue",
+	windowSize=30000,pen="MBIC",methodCP="PELT",penVal=0,
 	stat="Normal",plotGen=FALSE,plotCP=FALSE,split=TRUE,
 	plotLines=TRUE,plotPoints=FALSE,plotAll=TRUE,nLimit=1,
-	method="changepoint",segLimit=0)
+	method="changepoint",segLimit=0,retAll=FALSE)
 	{
 	library(changepoint)
 	# split into p and q
@@ -78,32 +80,66 @@ getCPs = function(betas,changeFilter=c(-0.1),colour="blue",
 		if(method=="changepoint")
 			{
 			# changepoints library
-			CP = cpt.meanvar(as.numeric(info["mean",keepIndex]),
-				Q=50,method=methodCP,penalty=pen,
+			CP = cpt.meanvar(as.vector(logit(as.numeric(info["mean",keepIndex]))),
+				method=methodCP,penalty=pen,
 				test.stat=stat,pen.value=penVal)
+			CP@param.est$mean = as.vector(invlogit(CP@param.est$mean))
+			# previous = MBIC and not logit
 			# filters
 			#meanB = mean(subBetas)
-			index = table(c(which(diff(CP@param.est$mean)<changeFilter)#,# reduction > 0.1 
-				#which(CP@param.est$mean<meanB) # seg mean less than average
-				))
-			index = as.numeric(names(index)[which(index==1)])
+			indexStart = which(diff(CP@param.est$mean)<changeFilter)# reduction > 0.1 
+			indexEnd = which(diff(CP@param.est$mean)>c(-changeFilter))
 			# start and end points of CP
-			starts = CP@cpts[index]
-			ends = CP@cpts[index+1]
+			firstTest = which(indexEnd==1)
+			if(length(firstTest)>0)
+			{
+			  starts = c(CP@cpts[indexStart],CP@cpts[indexEnd[-firstTest]-1],1)
+			  vals = c(CP@param.est$mean[indexStart],
+			           CP@param.est$mean[indexEnd[-firstTest]-1],
+			           CP@param.est$mean[1])
+			  ends = c(CP@cpts[indexStart+1],CP@cpts[indexEnd[-firstTest]],CP@cpts[indexEnd[firstTest]])
+			} else {
+			  starts = c(CP@cpts[indexStart],CP@cpts[indexEnd-1])
+			  vals = c(CP@param.est$mean[indexStart],CP@param.est$mean[indexEnd-1])
+			  ends = c(CP@cpts[indexStart+1],CP@cpts[indexEnd])
+			}
+      DMPinfo = data.frame(starts,ends,vals)
+      DMPinfo = unique(DMPinfo)
 			# plot changepoints
 			if(plotCP) 
 				{
 				plot(CP)
-				abline(v=c(starts,ends),col="red",lty=2)
+				abline(v=c(DMPinfo$starts,DMPinfo$ends),col="red",lty=2)
 				}
 			} else {
 			# segment with DNAcopy
-			seg = segment(CNA(logit(as.numeric(info["mean",keepIndex])),rep(1,times=length(keepIndex)),1:length(keepIndex)))
+			seg = DNAcopy::segment(DNAcopy::CNA(logit(as.numeric(info["mean",keepIndex])),rep(1,times=length(keepIndex)),1:length(keepIndex)))
+			seg$output$seg.mean = as.vector(invlogit(seg$output$seg.mean))
 			# filter
-			index = which(seg$output$seg.mean<segLimit)
+			indexStart = which(diff(seg$output$seg.mean)<changeFilter)# reduction > 0.1 
+			indexEnd = which(diff(seg$output$seg.mean)>c(-changeFilter))
 			# start and end points of CP
-			starts = seg$output[index,"loc.start"]
-			ends = seg$output[index,"loc.end"]
+			  starts = c(seg$output$loc.start[indexStart+1],
+					seg$output$loc.start[indexEnd])
+			  ends = c(seg$output$loc.end[indexStart+1],
+				seg$output$loc.end[indexEnd])
+			firstTest = which(indexEnd==1)
+			if(length(firstTest)>0)
+			{	
+			vals = c(seg$output$seg.mean[indexStart],
+			           seg$output$seg.mean[indexEnd[-firstTest]-1],
+			           seg$output$seg.mean[1])
+			} else {
+			vals = c(seg$output$seg.mean[indexStart],seg$output$seg.mean[indexEnd-1])
+			}
+      			DMPinfo = data.frame(starts,ends,vals)
+      			DMPinfo = unique(DMPinfo)
+			
+			# start and end points of CP
+			#index = which(seg$output$seg.mean<segLimit)
+			#starts = seg$output[index,"loc.start"]
+			#ends = seg$output[index,"loc.end"]
+			#vals = invlogit(seg$output[index,"seg.mean"])
 			# plot changepoints
 			if(plotCP) 
 				{
@@ -112,21 +148,19 @@ getCPs = function(betas,changeFilter=c(-0.1),colour="blue",
 				}
 			}
 		# genome scale start and end points
-		startsGenome = as.numeric(colnames(info)[keepIndex][starts])
-		endsGenome = as.numeric(colnames(info)[keepIndex][ends])	
+		DMPinfo$starts=as.numeric(colnames(info)[keepIndex][DMPinfo$starts])
+		DMPinfo$ends=as.numeric(colnames(info)[keepIndex][DMPinfo$ends])
 		# plot changepoints
 		if(plotGen)
 			{
 			plot(NA,xlim=range(as.numeric(names(subBetas))),ylim=0:1)
 			mapply(FUN=function(a,b){polygon(x=c(a,a,b,b),y=c(-2,2,2,-1),col="gray")},
-				a=startsGenome,b=endsGenome)
+				a=DMPinfo$starts,b=DMPinfo$ends)
 			points(names(subBetas),subBetas)
 			lines(names(subBetas),smooth(subBetas),col=colour)
 			}
 		# return
-		out = cbind(startsGenome,endsGenome)
-		colnames(out) = c("start","end")
-		outAll = rbind(outAll,out)
+		outAll = rbind(outAll,DMPinfo)
 		}
 	# plot combined
 	if(plotAll)

@@ -68,6 +68,8 @@ export(getGeneLOH)
 export(getGenegetGeneAmpDel)
 # plotLM.R
 export(plotLM)
+# PMDs.R
+export(definePMDs)
 
 importFrom('conumee','CNV.create_anno','CNV.load','CNV.fit',
 	'CNV.bin','CNV.detail','CNV.segment','CNV.genomeplot')
