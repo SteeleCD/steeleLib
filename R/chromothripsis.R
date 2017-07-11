@@ -91,9 +91,10 @@ runSingle = function(bedpe,direction1col=9,direction2col=10,chromCol1=1,posCol1=
 splitWindow = function(bedpe,seg,size=50000000,chromCol=2,startCol=3,endCol=4,chromCol1=1,posCol1=2,chromCol2=4,posCol2=5)
 	{
 	# p value for exponential distribution of segments
-	P1 = segLengthsExponential(seg,
+	P1 = steeleLib:::segLengthsExponential(seg,
 		startCol=startCol,
 		endCol=endCol)
+	if(nrow(bedpe)==0) return(P1)
 	# get windows of size
 	chrom = unique(seg[,chromCol])
 	chromSize = range(c(bedpe[which(bedpe[,chromCol1]==chrom),posCol1],
@@ -155,13 +156,16 @@ chromothripsis = function(segFile,bedpeDir,
 			chromCol=2, # seg chrom col
 			startCol=3, # seg start col
 			endCol=4, # seg end col
-			chromCol1=1, # bedpe chrom1 col
-			posCol1=2, # bedpe pos1 col
-			chromCol2=4, # bedpe chrom2 col
-			posCol2=5, # bedpe pos2col
-			segSampleCol=1 # seg sample col
+			bedpeChromCol1=1, # bedpe chrom1 col
+			bedpePosCol1=2, # bedpe pos1 col
+			bedpeChromCol2=4, # bedpe chrom2 col
+			bedpePosCol2=5, # bedpe pos2col
+			segSampleCol=1, # seg sample col
+			doParallel=FALSE,
+			nCores = NULL
 			) 
 	{
+	if(doParallel&is.null(nCores)) nCores = detectCores()
 	# read in seg file
 	seg = read.table(segFile,sep="\t")
 	samples = unique(seg[,segSampleCol])
@@ -172,23 +176,56 @@ chromothripsis = function(segFile,bedpeDir,
 		print(y)
 		# load bedpe for this sample
 		bedpe = read.table(paste0(bedpeDir,"/",y,".brass.annot.bedpe.gz"),sep="\t")
+		# data munging
+		sampleIndex = paste0(seg[,segSampleCol])==paste0(y)
+		subSeg = seg[which(sampleIndex),]
+		chromosomes = unique(subSeg[,chromCol]) 
 		# loop over chromosomes
-		res = sapply(unique(bedpe[,c(chromCol1,chromCol2)]),FUN=function(x)
+		if(doParallel)
 			{
-			print(x)
-			splitWindow(bedpe=bedpe[which(paste0(bedpe[,bedpeChromCol1])==paste0(x)|
-					paste0(bedpe[,bedpeChromCol2])==paste0(x)),],
-				seg=seg[which(paste0(seg[,segSampleCol])==paste0(y)&
-					paste0(seg[,chromCol])==paste0(x)),],
-				size=size,
-				chromCol=chromCol,
-				startCol=startCol,
-				endCol=endCol,
-				chromCol1=chromCol1,
-				posCol1=posCol1,
-				chromCol2=chromCol2,
-				posCol2=posCol2)})
-		names(res) = samples
+			res = mclapply(chromosomes,FUN=function(x)
+				{
+				print(x)
+				# keep bedpe rows for this chms
+				index1=paste0(bedpe[,bedpeChromCol1])==paste0(x)
+				index2=paste0(bedpe[,bedpeChromCol2])==paste0(x)
+				indexBedpe = which(index1|index2)
+				# keep seg rows for this chms
+				indexSeg = which(paste0(subSeg[,chromCol])==paste0(x))
+				# check for chromothripsis
+				splitWindow(bedpe=bedpe[indexBedpe,],
+					seg=subSeg[indexSeg,],
+					size=size,
+					chromCol=chromCol,
+					startCol=startCol,
+					endCol=endCol,
+					chromCol1=bedpeChromCol1,
+					posCol1=bedpePosCol1,
+					chromCol2=bedpeChromCol2,
+					posCol2=bedpePosCol2)},mc.cores=nCores)	
+			} else {
+			res = sapply(chromosomes,FUN=function(x)
+				{
+				print(x)
+				# keep bedpe rows for this chms
+				index1=paste0(bedpe[,bedpeChromCol1])==paste0(x)
+				index2=paste0(bedpe[,bedpeChromCol2])==paste0(x)
+				indexBedpe = which(index1|index2)
+				# keep seg rows for this chms
+				indexSeg = which(paste0(subSeg[,chromCol])==paste0(x))
+				# check for chromothripsis
+				splitWindow(bedpe=bedpe[indexBedpe,],
+					seg=subSeg[indexSeg,],
+					size=size,
+					chromCol=chromCol,
+					startCol=startCol,
+					endCol=endCol,
+					chromCol1=bedpeChromCol1,
+					posCol1=bedpePosCol1,
+					chromCol2=bedpeChromCol2,
+					posCol2=bedpePosCol2)},simplify=FALSE)
+			}
+		names(res) = chromosomes
 		return(res)
 		},simplify=FALSE)
 	names(Ps) = samples
