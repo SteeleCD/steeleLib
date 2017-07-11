@@ -81,11 +81,12 @@ getChromArmAbberations = function(seg,armLims)
 	}
 
 # single sample simulation
-singleSamp = function(N,Ps,testProps,nReps=10000,testFUN=sampleSimScore,diag=FALSE,sepP=FALSE,doParallel=FALSE)
+singleSamp = function(N,Ps,testProps,nReps=10000,testFUN=sampleSimScore,diag=FALSE,sepP=FALSE,doParallel=FALSE,nCores=NULL)
 	{
   if(doParallel)
     {
-	  res = unlist(mclapply(1:nReps,FUN=function(x) getSingleScore(N,Ps,testProps,testFUN=testFUN,diag=diag,sepP=sepP)))
+	  res = unlist(mclapply(1:nReps,FUN=function(x) getSingleScore(N,Ps,testProps,testFUN=testFUN,diag=diag,sepP=sepP),
+	                        mc.cores=nCores))
     } else {
     res = replicate(nReps,getSingleScore(N,Ps,testProps,testFUN=testFUN,diag=diag,sepP=sepP))
     }
@@ -336,9 +337,11 @@ genomeDoubling = function(segFile,	# segment file
                        head=TRUE,	# does seg file have headers?
                        diag=FALSE,
                        sepP=FALSE, # vars separate for each allele?
-                       doParallel=FALSE
+                       doParallel=FALSE, # run in parallel 
+                       nCores = NULL # number of cores
                        ) 
 	{
+  if(doParallel&is.null(nCores)) nCores=detectCores()
 	# get arm limits
 	print("load arm lims")
 	armLims = getArmLims(armFile)
@@ -419,7 +422,8 @@ genomeDoubling = function(segFile,	# segment file
 			    nReps=nReps,
 			    testFUN=funtest,
 			    diag=diag,sepP=sepP,
-			    doParallel=doParallel))
+			    doParallel=doParallel,
+			    nCores=nCores))
 	    } else {
 	    res = sapply(samples,
 	      FUN=function(x)
@@ -431,7 +435,8 @@ genomeDoubling = function(segFile,	# segment file
 	          nReps=nReps,
 	          testFUN=funtest,
 	          diag=diag,sepP=sepP,
-	          doParallel=doParallel)})
+	          doParallel=doParallel,
+	          nCores=nCores)})
 	    }
 		return(res)
 		} else {
