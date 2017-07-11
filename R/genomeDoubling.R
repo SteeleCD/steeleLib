@@ -415,6 +415,7 @@ genomeDoubling = function(segFile,	# segment file
 		# run simulations
 	  if(!sepP)
 	    {
+	    # single P per arm
 		  res = sapply(names(simVars$Ns),
   			FUN=function(x) singleSamp(N=simVars$Ns[x],
 			    testProps=simVars$testVals[x],
@@ -425,6 +426,7 @@ genomeDoubling = function(segFile,	# segment file
 			    doParallel=doParallel,
 			    nCores=nCores))
 	    } else {
+	   # separate Ps per allele
 	    res = sapply(samples,
 	      FUN=function(x)
 	        {
