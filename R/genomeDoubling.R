@@ -401,7 +401,7 @@ genomeDoubling = function(segFile,	# segment file
 	    res = sapply(samples,
 	      FUN=function(x)
 	        {
-	        index = grep(x,colnames(simVars$Ns))
+	        index = grep(x,names(simVars$Ns))
 	        singleSamp(N=sum(simVars$Ns[index]),
 	        testProps=simVars$testVals[x],
 	        Ps=simVars$Ps[,index],
