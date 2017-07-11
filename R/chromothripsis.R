@@ -96,8 +96,8 @@ splitWindow = function(bedpe,seg,size=50000000,chromCol=2,startCol=3,endCol=4,ch
 		endCol=endCol)
 	if(nrow(bedpe)==0) return(P1)
 	# get windows of size
-	chrom = unique(seg[,chromCol])
-	chromSize = range(c(bedpe[which(bedpe[,chromCol1]==chrom),posCol1],
+	chrom = paste0(unique(seg[,chromCol]))
+	chromSize = range(c(bedpe[which(paste0(bedpe[,chromCol1])==chrom),posCol1],
 		bedpe[which(bedpe[,chromCol2]==chrom),posCol2],
 		seg[,startCol],
 		seg[,endCol]))
@@ -146,6 +146,7 @@ splitWindow = function(bedpe,seg,size=50000000,chromCol=2,startCol=3,endCol=4,ch
 			return(NA)
 			}
 		})
+	if(all(is.na(res))) return(P1)
 	names(res) = split[-length(split)]
 	return(res)
 	}
