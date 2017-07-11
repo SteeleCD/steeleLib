@@ -4,28 +4,52 @@
 
 # simulate a single sample
 simSample = function(N, # number of copy number alterations
-                     Ps) # probabiltiies for each chromosome arm to be altered
-	{
-	# generate neutral allele counts
-	allelecounts = matrix(1,ncol=length(Ps),nrow=2)
-	# loop over alterations
-	for(i in 1:N)
-		{
-		# which chromosome to alter (ignoring entirely deleted chromosomes)
-		zeroIndex = which(!colSums(allelecounts)==0)
-		chrom = sample((1:length(Ps))[zeroIndex],size=1,prob=Ps[zeroIndex])
-		print(chrom)
-		# which allele to alter
-		allele = rbinom(1,1,allelecounts[2,chrom]/sum(allelecounts[,chrom]))
-		print(allele)
-		# whether to delete or amplify
-		change = rbinom(1,1,0.5)
-		if(change==0) change=c(-1)
-		print(change)
-		# make change
-		allelecounts[allele+1,chrom] = allelecounts[allele+1,chrom]+change
-		print(allelecounts)
-		}
+                     Ps, # probabiltiies for each chromosome arm to be altered
+	                   sepP=FALSE # whether Ps are provided per arm
+                     )
+  {
+	if(!sepP)
+	  {
+	  # generate neutral allele counts
+	  allelecounts = matrix(1,ncol=length(Ps),nrow=2)
+	  # loop over alterations
+	  for(i in 1:N)
+  		{
+		  # which chromosome to alter (ignoring entirely deleted chromosomes)
+		  zeroIndex = which(!colSums(allelecounts)==0)
+		  chrom = sample((1:length(Ps))[zeroIndex],size=1,prob=Ps[zeroIndex])
+		  print(chrom)
+		  # which allele to alter
+		  allele = rbinom(1,1,allelecounts[2,chrom]/sum(allelecounts[,chrom]))
+		  print(allele)
+		  # whether to delete or amplify
+		  change = rbinom(1,1,0.5)
+		  if(change==0) change=c(-1)
+		  print(change)
+		  # make change
+		  allelecounts[allele+1,chrom] = allelecounts[allele+1,chrom]+change
+		  print(allelecounts)
+	    }
+	 } else {
+	   Ps = t(Ps)
+	   # generate neutral allele counts
+	   allelecounts = matrix(1,ncol=ncol(Ps),nrow=2)
+	   # loop over alterations
+	   for(i in 1:N)
+	   {
+	     # which chromosome & allele to alter (ignoring entirely deleted chromosomes)
+	     zeroIndex = which(!allelecounts==0)
+	     chromAllele = sample((1:length(Ps))[zeroIndex],size=1,prob=Ps[zeroIndex])
+	     print(chromAllele)
+	     # whether to delete or amplify
+	     change = rbinom(1,1,0.5)
+	     if(change==0) change=c(-1)
+	     print(change)
+	     # make change
+	     allelecounts[chromAllele] = allelecounts[chromAllele]+change
+	     print(allelecounts)
+	   } 
+	 }
 	return(allelecounts)
 	}
 
@@ -39,9 +63,9 @@ sampleSimScore = function(allelecounts,  # allelecounts from simSample()
 	}
 
 # simulate single replicate
-getSingleScore = function(N,Ps,testVal,testFUN=sampleSimScore,diag=FALSE)
+getSingleScore = function(N,Ps,testVal,testFUN=sampleSimScore,diag=FALSE,sepP=FALSE)
 	{
-	allelecounts = simSample(N,Ps)
+	allelecounts = simSample(N,Ps,sepP=sepP)
 	score = testFUN(allelecounts,testVal)
 	if(diag) return(list(score=score,allelelcounts=allelecounts))
 	return(mean(score))
@@ -57,9 +81,9 @@ getChromArmAbberations = function(seg,armLims)
 	}
 
 # single sample simulation
-singleSamp = function(N,Ps,testProps,nReps=10000,testFUN=sampleSimScore,diag=FALSE)
+singleSamp = function(N,Ps,testProps,nReps=10000,testFUN=sampleSimScore,diag=FALSE,sepP=FALSE)
 	{
-	replicate(nReps,getSingleScore(N,Ps,testProps,testFUN=testFUN,diag=diag))
+	replicate(nReps,getSingleScore(N,Ps,testProps,testFUN=testFUN,diag=diag,sepP=sepP))
 	}
 
 # ======================================================================================
@@ -172,33 +196,59 @@ getArmLims = function(file)
 getVars = function(CN, # CN from getArmCN()
                    armLims, # limits of chromosome arms
                    testFUN=ABSOLUTEscore, # score function
-                   samples)       # samples
+                   samples,       # samples
+                  sepP=FALSE      # sep P and N for each copy? 
+                  )
 	{
 	rownames(armLims) = gsub("chr","",rownames(armLims))
 	armLengths = armLims[,2]-armLims[,1]
 	# CN changes
 	CNchanges = round(abs(1-CN)) # how different to 1 is CN
 	# total events
-	Ns = sapply(samples,FUN=function(x) 
-		{
-		index = grep(x,rownames(CNchanges))
-		sum(CNchanges[index,],na.rm=TRUE)
-		})
-	names(Ns) = samples
+	if(!sepP)
+	  {
+	  Ns = sapply(samples,FUN=function(x) 
+		  {
+		  index = grep(x,rownames(CNchanges))
+		  sum(CNchanges[index,],na.rm=TRUE)
+		  })
+	  names(Ns) = samples
+	  } else {
+	  Ns = apply(CNchanges,MARGIN=1,FUN=function(x) sum(x))
+	  names(Ns) = rownames(CN)
+	  }
 	# rates for each arm (per base)
-	rates = sapply(samples,FUN=function(x) 
-		{
-		index = grep(x,rownames(CN))
-		sapply(colnames(CN),FUN=function(y)
-			{
-			sum(CNchanges[index,y],na.rm=TRUE)/armLengths[y]
-			})
-		})
-	rates[which(is.na(rates))] = 0
-	rates = t(rates)
+	if(!sepP)
+	  {
+	  rates = sapply(samples,FUN=function(x) 
+  		{
+		  index = grep(x,rownames(CN))
+		  sapply(colnames(CN),FUN=function(y)
+  			{
+			  sum(CNchanges[index,y],na.rm=TRUE)/armLengths[y]
+			  })
+		  })
+	  rates[which(is.na(rates))] = 0
+	  rates = t(rates)
+	  } else {
+	 rates = sapply(rownames(CN),FUN=function(x) 
+	    {
+	      sapply(colnames(CN),FUN=function(y)
+	      {
+	        sum(CNchanges[x,y],na.rm=TRUE)/armLengths[y]
+	      })
+	    })
+	    rates[which(is.na(rates))] = 0
+	    rates = t(rates)
+	  }
 	# normalise to probabilities
 	probs = apply(rates,MARGIN=1,FUN=function(x) x/sum(x))
-	colnames(probs) = samples
+	if(!sepP)
+	  {
+	  colnames(probs) = samples
+	  } else {
+	  colnames(probs) = rownames(CN)
+	  }
 	rownames(probs) = colnames(CN)
 	# testVals
 	CN = round(CN)
@@ -263,7 +313,9 @@ genomeDoubling = function(segFile,	# segment file
                        chromCol = 3,	# seg chrom column
                        totCol = 11,	# seg total CN column
                        head=TRUE,	# does seg file have headers?
-                       diag=FALSE)
+                       diag=FALSE,
+                       sepP=FALSE # vars separate for each allele?
+                       ) 
 	{
 	# get arm limits
 	print("load arm lims")
@@ -326,7 +378,7 @@ genomeDoubling = function(segFile,	# segment file
 	if(length(yIndex)>0) CNcomb = CNcomb[,-yIndex]
 	# get simulation variables
 	print("get simulation variables")
-	simVars = getVars(CNcomb,armLims,testFUN=scoreFUN,samples=samples)
+	simVars = getVars(CNcomb,armLims,testFUN=scoreFUN,samples=samples,sepP=sepP)
 	# make test function
 	funtest = function(allelecounts,testVal)
 		{
@@ -336,13 +388,27 @@ genomeDoubling = function(segFile,	# segment file
 		{
 		print("run simulation")
 		# run simulations
-		res = sapply(names(simVars$Ns),
-			FUN=function(x) singleSamp(N=simVars$Ns[x],
-			testProps=simVars$testVals[x],
-			Ps=simVars$Ps[,x],
-			nReps=nReps,
-			testFUN=funtest,
-			diag=diag))
+	  if(!sepP)
+	    {
+		  res = sapply(names(simVars$Ns),
+  			FUN=function(x) singleSamp(N=simVars$Ns[x],
+			  testProps=simVars$testVals[x],
+			  Ps=simVars$Ps[,x],
+			  nReps=nReps,
+			  testFUN=funtest,
+			  diag=diag))
+	    } else {
+	    res = sapply(samples,
+	      FUN=function(x)
+	        {
+	        index = grep(x,colnames(simVars$Ns))
+	        singleSamp(N=sum(simVars$Ns[index]),
+	        testProps=simVars$testVals[x],
+	        Ps=simVars$Ps[,index],
+	        nReps=nReps,
+	        testFUN=funtest,
+	        diag=diag,sepP=sepP)})
+	    }
 		return(res)
 		} else {
 		return(list(CN=CNcomb,vars=simVars))
