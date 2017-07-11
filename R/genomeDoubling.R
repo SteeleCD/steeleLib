@@ -197,7 +197,7 @@ getVars = function(CN, # CN from getArmCN()
                    armLims, # limits of chromosome arms
                    testFUN=ABSOLUTEscore, # score function
                    samples,       # samples
-                  sepP=FALSE      # sep P and N for each copy? 
+                   sepP=FALSE      # sep P and N for each copy? 
                   )
 	{
 	rownames(armLims) = gsub("chr","",rownames(armLims))
@@ -220,24 +220,39 @@ getVars = function(CN, # CN from getArmCN()
 	# rates for each arm (per base)
 	if(!sepP)
 	  {
+	  #rates = sapply(samples,FUN=function(x) 
+  	#	{
+	#	  index = grep(x,rownames(CN))
+	#	  sapply(colnames(CN),FUN=function(y)
+  	#		{
+	#		  sum(CNchanges[index,y],na.rm=TRUE)/armLengths[y]
+	#		  })
+	#	  })
 	  rates = sapply(samples,FUN=function(x) 
   		{
 		  index = grep(x,rownames(CN))
 		  sapply(colnames(CN),FUN=function(y)
   			{
-			  sum(CNchanges[index,y],na.rm=TRUE)/armLengths[y]
+			  sum(CNchanges[index,],na.rm=TRUE)/armLengths[y]
 			  })
 		  })
 	  rates[which(is.na(rates))] = 0
 	  rates = t(rates)
 	  } else {
+	 #rates = sapply(rownames(CN),FUN=function(x) 
+	 #   {
+	 #     sapply(colnames(CN),FUN=function(y)
+	 #     {
+	 #       sum(CNchanges[x,y],na.rm=TRUE)/armLengths[y]
+	 #     })
+	 #   })
 	 rates = sapply(rownames(CN),FUN=function(x) 
 	    {
 	      sapply(colnames(CN),FUN=function(y)
 	      {
-	        sum(CNchanges[x,y],na.rm=TRUE)/armLengths[y]
+	        sum(CNchanges[x,],na.rm=TRUE)/armLengths[y]
 	      })
-	    })
+	    })  
 	    rates[which(is.na(rates))] = 0
 	    rates = t(rates)
 	  }
