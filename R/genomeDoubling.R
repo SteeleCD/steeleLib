@@ -81,10 +81,16 @@ getChromArmAbberations = function(seg,armLims)
 	}
 
 # single sample simulation
-singleSamp = function(N,Ps,testProps,nReps=10000,testFUN=sampleSimScore,diag=FALSE,sepP=FALSE)
+singleSamp = function(N,Ps,testProps,nReps=10000,testFUN=sampleSimScore,diag=FALSE,sepP=FALSE,doParallel=FALSE)
 	{
-	replicate(nReps,getSingleScore(N,Ps,testProps,testFUN=testFUN,diag=diag,sepP=sepP))
-	}
+  if(doParallel)
+    {
+	  res = unlist(mclapply(1:nReps,FUN=function(x) getSingleScore(N,Ps,testProps,testFUN=testFUN,diag=diag,sepP=sepP)))
+    } else {
+    res = replicate(nReps,getSingleScore(N,Ps,testProps,testFUN=testFUN,diag=diag,sepP=sepP))
+    }
+  res
+  }
 
 # ======================================================================================
 #				DATA MUNGING FUNCTIONS
@@ -329,7 +335,8 @@ genomeDoubling = function(segFile,	# segment file
                        totCol = 11,	# seg total CN column
                        head=TRUE,	# does seg file have headers?
                        diag=FALSE,
-                       sepP=FALSE # vars separate for each allele?
+                       sepP=FALSE, # vars separate for each allele?
+                       doParallel=FALSE
                        ) 
 	{
 	# get arm limits
@@ -407,22 +414,24 @@ genomeDoubling = function(segFile,	# segment file
 	    {
 		  res = sapply(names(simVars$Ns),
   			FUN=function(x) singleSamp(N=simVars$Ns[x],
-			  testProps=simVars$testVals[x],
-			  Ps=simVars$Ps[,x],
-			  nReps=nReps,
-			  testFUN=funtest,
-			  diag=diag))
+			    testProps=simVars$testVals[x],
+			    Ps=simVars$Ps[,x],
+			    nReps=nReps,
+			    testFUN=funtest,
+			    diag=diag,sepP=sepP,
+			    doParallel=doParallel))
 	    } else {
 	    res = sapply(samples,
 	      FUN=function(x)
 	        {
 	        index = grep(x,names(simVars$Ns))
 	        singleSamp(N=sum(simVars$Ns[index]),
-	        testProps=simVars$testVals[x],
-	        Ps=simVars$Ps[,index],
-	        nReps=nReps,
-	        testFUN=funtest,
-	        diag=diag,sepP=sepP)})
+	          testProps=simVars$testVals[x],
+	          Ps=simVars$Ps[,index],
+	          nReps=nReps,
+	          testFUN=funtest,
+	          diag=diag,sepP=sepP,
+	          doParallel=doParallel)})
 	    }
 		return(res)
 		} else {
