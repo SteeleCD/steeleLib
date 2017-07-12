@@ -16,7 +16,7 @@ randomJoins = function(bedpe,direction1col=9,direction2col=10)
   counts = table(joins)
   if(length(counts)<4) counts = c(counts,rep(0,4-length(counts)))
   # goodness of fit test to multinomial
-  1-chisq.test(counts,p=rep(0.25,4))
+  1-chisq.test(counts,p=rep(0.25,4))$p.value
   #1-dmultinom(counts,prob=rep(0.25,4)) # small densities of dmultinom = not random
   }
 
