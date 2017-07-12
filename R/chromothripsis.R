@@ -4,8 +4,9 @@ segLengthsExponential = function(seg,startCol=3,endCol=4)
   breakpoints = sapply(1:(nrow(seg)-1),
                        FUN=function(i) (seg[i+1,startCol]+seg[i,endCol])/2)
   seglengths = diff(breakpoints) # segment lengths
-  test = ks.test(seglengths, "pexp", 1/mean(seglengths)) # are segment lengths exponentially distributed?
-  return(test$p.value) # small p-value indicates exponential
+  # are segment lengths exponentially distributed?
+  test = ks.test(seglengths, "pexp", 1/mean(seglengths)) # p>0.05 indicates that segLengths fit exponential distr
+  return(1-test$p.value) # small p-value indicates exponential
   }
 
 # randomness of DNA fragment joins
@@ -16,8 +17,8 @@ randomJoins = function(bedpe,direction1col=9,direction2col=10)
   counts = table(joins)
   if(length(counts)<4) counts = c(counts,rep(0,4-length(counts)))
   # goodness of fit test to multinomial
-  1-chisq.test(counts,p=rep(0.25,4))$p.value
-  #1-dmultinom(counts,prob=rep(0.25,4)) # small densities of dmultinom = not random
+  test = chisq.test(counts,p=rep(0.25,4)) # p>0.05 indicates that counts fit multinomial distr
+  return(1-test$p.value) # small p value indicates multinomial
   }
 
 # randomness of DNA fragment order
