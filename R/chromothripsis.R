@@ -6,7 +6,7 @@ segLengthsExponential = function(seg,startCol=3,endCol=4)
   seglengths = diff(breakpoints) # segment lengths
   # are segment lengths exponentially distributed?
   test = ks.test(seglengths, "pexp", 1/mean(seglengths)) # p>0.05 indicates that segLengths fit exponential distr
-  return(1-test$p.value) # small p-value indicates exponential
+  return(test$p.value) # p>0.05 indicates exponential  (suggesting chromothripsis)
   }
 
 # randomness of DNA fragment joins
@@ -18,7 +18,7 @@ randomJoins = function(bedpe,direction1col=9,direction2col=10)
   if(length(counts)<4) counts = c(counts,rep(0,4-length(counts)))
   # goodness of fit test to multinomial
   test = chisq.test(counts,p=rep(0.25,4)) # p>0.05 indicates that counts fit multinomial distr
-  return(1-test$p.value) # small p value indicates multinomial
+  return(test$p.value) # p>0.05 indicates multinomial  (suggesting chromothripsis)
   }
 
 # randomness of DNA fragment order
@@ -47,7 +47,7 @@ randomOrder = function(bedpe,chromCol1=1,posCol1=2,chromCol2=4,posCol2=5,nSims=1
   # monte carlo simulations
   sims = replicate(nSims,abs(diff(sample(nrow(breakpoints),2))))
   # p value
-  sum(sims>indicesScore)/nSims
+  sum(sims>indicesScore)/nSims # p>0.05 indicates random draw (suggesting chromothripsis)
   }
 
 # ability to walk chromosome
