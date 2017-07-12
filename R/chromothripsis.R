@@ -91,7 +91,7 @@ runSingle = function(bedpe,direction1col=9,direction2col=10,chromCol1=1,posCol1=
 	}
 
 # split into windows, then check for chromothripsis
-splitWindow = function(bedpe,seg,size=50000000,chromCol=2,startCol=3,endCol=4,chromCol1=1,posCol1=2,chromCol2=4,posCol2=5)
+splitWindow = function(bedpe,seg,size=50000000,gap=500000,chromCol=2,startCol=3,endCol=4,chromCol1=1,posCol1=2,chromCol2=4,posCol2=5)
 	{
 	# p value for exponential distribution of segments
 	P1 = steeleLib:::segLengthsExponential(seg,
@@ -104,8 +104,8 @@ splitWindow = function(bedpe,seg,size=50000000,chromCol=2,startCol=3,endCol=4,ch
 		bedpe[which(bedpe[,chromCol2]==chrom),posCol2],
 		seg[,startCol],
 		seg[,endCol]))
-	split = seq(from=chromSize[1],to=chromSize[2],by=size)
-	if(max(split)<chromSize[2]) split = c(split,split[length(split)]+size)
+	split = seq(from=chromSize[1],to=chromSize[2]-size,by=gap)
+	if(max(split)<chromSize[2]) split = c(split,split[length(split)]+gap)
 	# get Granges
 	segGrange = as(paste0("chr",
 			seg[,chromCol],":",
@@ -127,7 +127,7 @@ splitWindow = function(bedpe,seg,size=50000000,chromCol=2,startCol=3,endCol=4,ch
 		{
 		checkGrange = as(paste0("chr",chrom,":",
 					split[i],"-",
-					split[i+1]),
+					split[i]+size),
 				"GRanges")
 		segIndex = findOverlaps(segGrange,checkGrange)
 		segIndex = segIndex@from
@@ -150,6 +150,7 @@ splitWindow = function(bedpe,seg,size=50000000,chromCol=2,startCol=3,endCol=4,ch
 			}
 		})
 	if(all(is.na(res))) return(P1)
+	res[which(is.na(res))] = 0
 	names(res) = split[-length(split)]
 	return(res)
 	}
