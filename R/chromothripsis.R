@@ -176,8 +176,8 @@ getRuns = function(chromScores,chrom,samp,size)
 		runs = rle(chromBool)
 		ends = cumsum(runs$lengths)
 		starts = c(1,ends[-length(ends)]+1)
-		windowStarts = names(chromBool)[starts[which(runs$values==TRUE)]]
-		windowEnds = names(chromBool)[ends[which(runs$values==TRUE)]]
+		windowStarts = as.numeric(names(chromBool)[starts[which(runs$values==TRUE)]])
+		windowEnds = as.numeric(names(chromBool)[ends[which(runs$values==TRUE)]])
 		windowEnds = windowEnds+size
 		return(cbind(samp,chrom,windowStarts,windowEnds))
 		} else {
@@ -247,9 +247,9 @@ chromothripsis = function(segFile,bedpeDir,
 					chromCol1=bedpeChromCol1,
 					posCol1=bedpePosCol1,
 					chromCol2=bedpeChromCol2,
-					posCol2=bedpePosCol2)},mc.cores=nCores)	
+					posCol2=bedpePosCol2)
 				# just output regions that are chromothriptic
-				getRuns(chromScores,x,y,size)
+				getRuns(chromScores,x,y,size)},mc.cores=nCores)	
 			} else {
 			# loop over chromosomes
 			res = sapply(chromosomes,FUN=function(x)
@@ -271,9 +271,9 @@ chromothripsis = function(segFile,bedpeDir,
 					chromCol1=bedpeChromCol1,
 					posCol1=bedpePosCol1,
 					chromCol2=bedpeChromCol2,
-					posCol2=bedpePosCol2)},simplify=FALSE)
+					posCol2=bedpePosCol2)
 				# just output regions that are chromothriptic
-				getRuns(chromScores,x,y,size)
+				getRuns(chromScores,x,y,size)},simplify=FALSE)
 			}
 		names(res) = chromosomes
 		return(res)
