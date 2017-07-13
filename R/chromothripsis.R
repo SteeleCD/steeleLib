@@ -175,7 +175,7 @@ chromothripsis = function(segFile,bedpeDir,
 	if(doParallel&is.null(nCores)) nCores = detectCores()
 	# read in seg file
 	seg = read.table(segFile,sep="\t")
-	if(!is.null(toRun)) seg = seg[which(seg[,segSampleCol]%in%toRun),]
+	if(!is.null(samplesToRun)) seg = seg[which(seg[,segSampleCol]%in%toRun),]
 	samples = unique(seg[,segSampleCol])
 	# run analysis per sample per chromosome
 	# loop over samples
