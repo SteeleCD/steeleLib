@@ -166,6 +166,25 @@ POSCOL2<<-posCol2
 	return(res)
 	}
 
+# function to get runs and clean output
+getRuns = function(chromScores,chrom,samp,size)
+	{
+	if(length(chromScores)>1)
+		{
+		chromBool = chromScores>0.05
+		if(!any(chromBool)) return(NULL)
+		runs = rle(chromBool)
+		ends = cumsum(runs$lengths)
+		starts = c(1,ends[-length(ends)]+1)
+		windowStarts = names(chromBool)[starts[which(runs$values==TRUE)]]
+		windowEnds = names(chromBool)[ends[which(runs$values==TRUE)]]
+		windowEnds = windowEnds+size
+		return(cbind(samp,chrom,windowStarts,windowEnds))
+		} else {
+		return(cbind(samp,chrom))
+		}
+	}
+
 # function to run whole chromothripsis analysis
 chromothripsis = function(segFile,bedpeDir,
 			size=1e7, # window size
@@ -219,7 +238,7 @@ chromothripsis = function(segFile,bedpeDir,
 				# keep seg rows for this chms
 				indexSeg = which(paste0(subSeg[,chromCol])==paste0(x))
 				# check for chromothripsis
-				splitWindow(bedpe=bedpe[indexBedpe,],
+				chromScores = splitWindow(bedpe=bedpe[indexBedpe,],
 					seg=subSeg[indexSeg,],
 					size=size,
 					chromCol=chromCol,
@@ -229,6 +248,8 @@ chromothripsis = function(segFile,bedpeDir,
 					posCol1=bedpePosCol1,
 					chromCol2=bedpeChromCol2,
 					posCol2=bedpePosCol2)},mc.cores=nCores)	
+				# just output regions that are chromothriptic
+				getRuns(chromScores,x,y,size)
 			} else {
 			# loop over chromosomes
 			res = sapply(chromosomes,FUN=function(x)
@@ -252,20 +273,7 @@ chromothripsis = function(segFile,bedpeDir,
 					chromCol2=bedpeChromCol2,
 					posCol2=bedpePosCol2)},simplify=FALSE)
 				# just output regions that are chromothriptic
-				if(length(chromScores)>1)
-					{
-					chromBool = chromScores>0.05
-					if(!any(chromBool)) return(NULL)
-					runs = rle(chromBool)
-					ends = cumsum(runs$lengths)
-					starts = c(1,ends[-length(ends)]+1)
-					windowStarts = names(chromBool)[starts[which(runs$values==TRUE)]]
-					windowEnds = names(chromBool)[ends[which(runs$values==TRUE)]]
-					windowEnds = windowEnds+size
-					return(cbind(y,x,windowStarts,windowEnds))
-					} else {
-					return(cbind(y,x))
-					}
+				getRuns(chromScores,x,y,size)
 			}
 		names(res) = chromosomes
 		return(res)
