@@ -91,7 +91,7 @@ runSingle = function(bedpe,direction1col=9,direction2col=10,chromCol1=1,posCol1=
 	}
 
 # split into windows, then check for chromothripsis
-splitWindow = function(bedpe,seg,size=50000000,gap=500000,chromCol=2,startCol=3,endCol=4,chromCol1=1,posCol1=2,chromCol2=4,posCol2=5)
+splitWindow = function(bedpe,seg,size=1e7,gap=1e6,chromCol=2,startCol=3,endCol=4,chromCol1=1,posCol1=2,chromCol2=4,posCol2=5)
 	{
 	# p value for exponential distribution of segments
 	P1 = steeleLib:::segLengthsExponential(seg,
@@ -104,7 +104,7 @@ splitWindow = function(bedpe,seg,size=50000000,gap=500000,chromCol=2,startCol=3,
 		bedpe[which(bedpe[,chromCol2]==chrom),posCol2],
 		seg[,startCol],
 		seg[,endCol]))
-	split = seq(from=chromSize[1],to=chromSize[2]-size,by=gap)
+	split = seq(from=min(chromSize),to=max(chromSize)-size,by=gap)
 	if(max(split)<chromSize[2]) split = c(split,split[length(split)]+gap)
 	# get Granges
 	segGrange = as(paste0("chr",
@@ -167,12 +167,14 @@ chromothripsis = function(segFile,bedpeDir,
 			bedpePosCol2=5, # bedpe pos2col
 			segSampleCol=1, # seg sample col
 			doParallel=FALSE,
-			nCores = NULL
+			nCores = NULL,
+			toRun = NULL
 			) 
 	{
 	if(doParallel&is.null(nCores)) nCores = detectCores()
 	# read in seg file
 	seg = read.table(segFile,sep="\t")
+	if(!is.null(toRun)) seg = seg[which(seg[,segSampleCol]%in%toRun),]
 	samples = unique(seg[,segSampleCol])
 	# run analysis per sample per chromosome
 	# loop over samples
