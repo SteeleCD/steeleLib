@@ -168,7 +168,8 @@ chromothripsis = function(segFile,bedpeDir,
 			segSampleCol=1, # seg sample col
 			doParallel=FALSE,
 			nCores = NULL,
-			toRun = NULL
+			samplesToRun = NULL,
+			chromsToRun = NULL
 			) 
 	{
 	if(doParallel&is.null(nCores)) nCores = detectCores()
@@ -186,7 +187,12 @@ chromothripsis = function(segFile,bedpeDir,
 		# data munging
 		sampleIndex = paste0(seg[,segSampleCol])==paste0(y)
 		subSeg = seg[which(sampleIndex),]
-		chromosomes = unique(subSeg[,chromCol]) 
+		if(is.null(chromsToRun))
+			{
+			chromosomes = unique(subSeg[,chromCol])
+			} else {
+			chromosomes = chromsToRun
+			} 
 		# loop over chromosomes
 		if(doParallel)
 			{
