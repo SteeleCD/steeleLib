@@ -93,6 +93,17 @@ runSingle = function(bedpe,direction1col=9,direction2col=10,chromCol1=1,posCol1=
 # split into windows, then check for chromothripsis
 splitWindow = function(bedpe,seg,size=1e7,gap=1e6,chromCol=2,startCol=3,endCol=4,chromCol1=1,posCol1=2,chromCol2=4,posCol2=5)
 	{
+	BEDPE <<- bedpe
+	SEG<<-seg
+	SIZE<<-size
+	GAP<<-gap
+	CHROMCOL <<- chromCol
+	STARTCOL<<-startCol
+ENDCOL<<-endCol
+CHROMCOL1<<-chromCol1
+POSCOL1<<-posCol1
+CHROMCOL2<<-chromCol2
+POSCOL2<<-posCol2
 	# p value for exponential distribution of segments
 	P1 = steeleLib:::segLengthsExponential(seg,
 		startCol=startCol,
@@ -105,7 +116,7 @@ splitWindow = function(bedpe,seg,size=1e7,gap=1e6,chromCol=2,startCol=3,endCol=4
 		seg[,startCol],
 		seg[,endCol]))
 	split = seq(from=min(chromSize),to=max(chromSize)-size,by=gap)
-	if(max(split)<chromSize[2]) split = c(split,split[length(split)]+gap)
+	if((max(split)+size)<max(chromSize)) split = c(split,split[length(split)]+gap)
 	# get Granges
 	segGrange = as(paste0("chr",
 			seg[,chromCol],":",
@@ -123,7 +134,7 @@ splitWindow = function(bedpe,seg,size=1e7,gap=1e6,chromCol=2,startCol=3,endCol=4
 			bedpe[,posCol2]),
 		"GRanges")
 	# check for chromothripsis in each window
-	res = sapply(1:(length(split)-1),FUN=function(i)
+	res = sapply(1:length(split),FUN=function(i)
 		{
 		checkGrange = as(paste0("chr",chrom,":",
 					split[i],"-",
@@ -142,7 +153,7 @@ splitWindow = function(bedpe,seg,size=1e7,gap=1e6,chromCol=2,startCol=3,endCol=4
 			posCol1=posCol1,
 			chromCol2=chromCol2,
 			posCol2=posCol2)
-		if(!is.na(P)) 
+		if(!any(is.na(P))) 
 			{
 			return(fishersMethod(c(P1,P)))
 			} else {
@@ -157,7 +168,8 @@ splitWindow = function(bedpe,seg,size=1e7,gap=1e6,chromCol=2,startCol=3,endCol=4
 
 # function to run whole chromothripsis analysis
 chromothripsis = function(segFile,bedpeDir,
-			size=50000000, # window size
+			size=1e7, # window size
+			gap=1e6, # gap between sliding windows
 			chromCol=2, # seg chrom col
 			startCol=3, # seg start col
 			endCol=4, # seg end col
@@ -193,9 +205,10 @@ chromothripsis = function(segFile,bedpeDir,
 			} else {
 			chromosomes = chromsToRun
 			} 
-		# loop over chromosomes
+		# chromothripsis calculation
 		if(doParallel)
 			{
+			# loop over chromosomes
 			res = mclapply(chromosomes,FUN=function(x)
 				{
 				print(x)
@@ -217,6 +230,7 @@ chromothripsis = function(segFile,bedpeDir,
 					chromCol2=bedpeChromCol2,
 					posCol2=bedpePosCol2)},mc.cores=nCores)	
 			} else {
+			# loop over chromosomes
 			res = sapply(chromosomes,FUN=function(x)
 				{
 				print(x)
@@ -227,7 +241,7 @@ chromothripsis = function(segFile,bedpeDir,
 				# keep seg rows for this chms
 				indexSeg = which(paste0(subSeg[,chromCol])==paste0(x))
 				# check for chromothripsis
-				splitWindow(bedpe=bedpe[indexBedpe,],
+				chromScores = splitWindow(bedpe=bedpe[indexBedpe,],
 					seg=subSeg[indexSeg,],
 					size=size,
 					chromCol=chromCol,
@@ -237,6 +251,21 @@ chromothripsis = function(segFile,bedpeDir,
 					posCol1=bedpePosCol1,
 					chromCol2=bedpeChromCol2,
 					posCol2=bedpePosCol2)},simplify=FALSE)
+				# just output regions that are chromothriptic
+				if(length(chromScores)>1)
+					{
+					chromBool = chromScores>0.05
+					if(!any(chromBool)) return(NULL)
+					runs = rle(chromBool)
+					ends = cumsum(runs$lengths)
+					starts = c(1,ends[-length(ends)]+1)
+					windowStarts = names(chromBool)[starts[which(runs$values==TRUE)]]
+					windowEnds = names(chromBool)[ends[which(runs$values==TRUE)]]
+					windowEnds = windowEnds+size
+					return(cbind(y,x,windowStarts,windowEnds))
+					} else {
+					return(cbind(y,x))
+					}
 			}
 		names(res) = chromosomes
 		return(res)
