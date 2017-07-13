@@ -249,7 +249,7 @@ chromothripsis = function(segFile,bedpeDir,
 					chromCol2=bedpeChromCol2,
 					posCol2=bedpePosCol2)
 				# just output regions that are chromothriptic
-				getRuns(chromScores,x,y,size)},mc.cores=nCores)	
+				getRuns(chromScores,paste0(x),paste0(y),size)},mc.cores=nCores)	
 			} else {
 			# loop over chromosomes
 			res = sapply(chromosomes,FUN=function(x)
@@ -273,7 +273,7 @@ chromothripsis = function(segFile,bedpeDir,
 					chromCol2=bedpeChromCol2,
 					posCol2=bedpePosCol2)
 				# just output regions that are chromothriptic
-				getRuns(chromScores,x,y,size)},simplify=FALSE)
+				getRuns(chromScores,paste0(x),paste0(y),size)},simplify=FALSE)
 			}
 		names(res) = chromosomes
 		return(res)
