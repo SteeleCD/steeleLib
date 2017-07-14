@@ -157,7 +157,7 @@ splitWindow = function(bedpe,seg,size=1e7,gap=1e6,chromCol=2,startCol=3,endCol=4
 		})
 	if(all(is.na(res))) return(P1)
 	res[which(is.na(res))] = 0
-	names(res) = split[-length(split)]
+	names(res) = split
 	return(res)
 	}
 
@@ -260,7 +260,7 @@ chromothripsis = function(segFile, # combined seg file
 				# keep seg rows for this chms
 				indexSeg = which(paste0(subSeg[,chromCol])==paste0(x))
 				# check for chromothripsis
-				chromScores = steeleLib:::splitWindow(bedpe=bedpe[indexBedpe,],
+				chromScores = splitWindow(bedpe=bedpe[indexBedpe,],
 					seg=subSeg[indexSeg,],
 					size=size,
 					chromCol=chromCol,
