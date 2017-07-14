@@ -93,17 +93,6 @@ runSingle = function(bedpe,direction1col=9,direction2col=10,chromCol1=1,posCol1=
 # split into windows, then check for chromothripsis
 splitWindow = function(bedpe,seg,size=1e7,gap=1e6,chromCol=2,startCol=3,endCol=4,chromCol1=1,posCol1=2,chromCol2=4,posCol2=5,direction1col=9,direction2col=10)
 	{
-	BEDPE <<- bedpe
-	SEG<<-seg
-	SIZE<<-size
-	GAP<<-gap
-	CHROMCOL <<- chromCol
-	STARTCOL<<-startCol
-ENDCOL<<-endCol
-CHROMCOL1<<-chromCol1
-POSCOL1<<-posCol1
-CHROMCOL2<<-chromCol2
-POSCOL2<<-posCol2
 	# p value for exponential distribution of segments
 	P1 = steeleLib:::segLengthsExponential(seg,
 		startCol=startCol,
@@ -116,7 +105,11 @@ POSCOL2<<-posCol2
 		seg[,startCol],
 		seg[,endCol]))
 	split = seq(from=min(chromSize),to=max(chromSize)-size,by=gap)
-	if((max(split)+size)<max(chromSize)) split = c(split,split[length(split)]+gap)
+	if((max(split)+size)<max(chromSize)) 
+		{
+		split = c(split,split[length(split)]+gap)
+		names(split)[length(split)] = split[length(split)]
+		}
 	# get Granges
 	segGrange = as(paste0("chr",
 			seg[,chromCol],":",
@@ -193,8 +186,9 @@ getRuns = function(chromScores,chrom,samp,size)
 readFile = function(file,head)
 	{
 	ending = rev(strsplit(file,split="[.]")[[1]])[1]
-	if(ending%in%c("txt","tsv")) return(read.table(file,sep="\t",head=head))
 	if(ending=="csv") return(read.csv(file,head=head))
+	if(ending%in%c("txt","tsv")) return(read.table(file,sep="\t",head=head))
+	return(read.table(file,sep="\t",head=head))	
 	}
 
 # function to run whole chromothripsis analysis
@@ -266,7 +260,7 @@ chromothripsis = function(segFile, # combined seg file
 				# keep seg rows for this chms
 				indexSeg = which(paste0(subSeg[,chromCol])==paste0(x))
 				# check for chromothripsis
-				chromScores = splitWindow(bedpe=bedpe[indexBedpe,],
+				chromScores = steeleLib:::splitWindow(bedpe=bedpe[indexBedpe,],
 					seg=subSeg[indexSeg,],
 					size=size,
 					chromCol=chromCol,
