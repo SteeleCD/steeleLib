@@ -91,7 +91,7 @@ runSingle = function(bedpe,direction1col=9,direction2col=10,chromCol1=1,posCol1=
 	}
 
 # split into windows, then check for chromothripsis
-splitWindow = function(bedpe,seg,size=1e7,gap=1e6,chromCol=2,startCol=3,endCol=4,chromCol1=1,posCol1=2,chromCol2=4,posCol2=5)
+splitWindow = function(bedpe,seg,size=1e7,gap=1e6,chromCol=2,startCol=3,endCol=4,chromCol1=1,posCol1=2,chromCol2=4,posCol2=5,direction1col=9,direction2col=10)
 	{
 	BEDPE <<- bedpe
 	SEG<<-seg
@@ -152,7 +152,9 @@ POSCOL2<<-posCol2
 			chromCol1=chromCol1,
 			posCol1=posCol1,
 			chromCol2=chromCol2,
-			posCol2=posCol2)
+			posCol2=posCol2,
+			direction1col=direction1col,
+			direction2col=direction2col)
 		if(!any(is.na(P))) 
 			{
 			return(fishersMethod(c(P1,P)))
@@ -181,12 +183,23 @@ getRuns = function(chromScores,chrom,samp,size)
 		windowEnds = windowEnds+size
 		return(cbind(samp,chrom,windowStarts,windowEnds))
 		} else {
-		return(cbind(samp,chrom))
+		#return(cbind(samp,chrom))
+		# only return results if have looked at translocations
+		return(NULL)
 		}
 	}
 
+# read in a file
+readFile = function(file,head)
+	{
+	ending = rev(strsplit(file,split="[.]")[[1]])[1]
+	if(ending%in%c("txt","tsv")) return(read.table(file,sep="\t",head=head))
+	if(ending=="csv") return(read.csv(file,head=head))
+	}
+
 # function to run whole chromothripsis analysis
-chromothripsis = function(segFile,bedpeDir,
+chromothripsis = function(segFile, # combined seg file
+			bedpeFile=NULL, # directory of separate bedpes, or single bedpe file
 			size=1e7, # window size
 			gap=1e6, # gap between sliding windows
 			chromCol=2, # seg chrom col
@@ -194,27 +207,41 @@ chromothripsis = function(segFile,bedpeDir,
 			endCol=4, # seg end col
 			bedpeChromCol1=1, # bedpe chrom1 col
 			bedpePosCol1=2, # bedpe pos1 col
+			direction1col=9, # orientation of first partner
 			bedpeChromCol2=4, # bedpe chrom2 col
 			bedpePosCol2=5, # bedpe pos2col
+			direction2col=10, # orientation of second partner
 			segSampleCol=1, # seg sample col
-			doParallel=FALSE,
-			nCores = NULL,
-			samplesToRun = NULL,
-			chromsToRun = NULL
+			bedpeSampleCol=1, # seg sample col
+			doParallel=FALSE, # parallel computation
+			nCores = NULL,	# number of cores
+			samplesToRun = NULL, # which samples to run
+			chromsToRun = NULL, # which chromosomes to run
+			sepbedpe=TRUE, # Are bedpes separate
+			bedpeHead=FALSE, # does bedpe file have header
+			segHead=TRUE, # does seg file have header
+			bedpeEnding=".brass.annot.bedpe.gz"
 			) 
 	{
 	if(doParallel&is.null(nCores)) nCores = detectCores()
 	# read in seg file
-	seg = read.table(segFile,sep="\t")
+	seg = readFile(segFile,segHead)
 	if(!is.null(samplesToRun)) seg = seg[which(seg[,segSampleCol]%in%samplesToRun),]
 	samples = unique(seg[,segSampleCol])
+	# read in bedpe
+	if(!sepbedpe) allbedpe = readFile(bedpeFile,bedpeHead)
 	# run analysis per sample per chromosome
 	# loop over samples
 	Ps = sapply(samples,FUN=function(y)
 		{
 		print(y)
 		# load bedpe for this sample
-		bedpe = read.table(paste0(bedpeDir,"/",y,".brass.annot.bedpe.gz"),sep="\t")
+		if(sepbedpe)
+			{
+			bedpe = readFile(paste0(bedpeFile,"/",y,bedpeEnding),bedpeHead)
+			} else {
+			bedpe = allbedpe[which(paste0(allbedpe[,bedpeSampleCol])==paste0(y)),]
+			}
 		# data munging
 		sampleIndex = paste0(seg[,segSampleCol])==paste0(y)
 		subSeg = seg[which(sampleIndex),]
@@ -235,6 +262,7 @@ chromothripsis = function(segFile,bedpeDir,
 				index1=paste0(bedpe[,bedpeChromCol1])==paste0(x)
 				index2=paste0(bedpe[,bedpeChromCol2])==paste0(x)
 				indexBedpe = which(index1|index2)
+				if(length(indexBedpe)==0) return(NULL)
 				# keep seg rows for this chms
 				indexSeg = which(paste0(subSeg[,chromCol])==paste0(x))
 				# check for chromothripsis
@@ -247,7 +275,9 @@ chromothripsis = function(segFile,bedpeDir,
 					chromCol1=bedpeChromCol1,
 					posCol1=bedpePosCol1,
 					chromCol2=bedpeChromCol2,
-					posCol2=bedpePosCol2)
+					posCol2=bedpePosCol2,
+					direction1col=direction1col,
+					direction2col=direction2col)
 				# just output regions that are chromothriptic
 				getRuns(chromScores,paste0(x),paste0(y),size)},mc.cores=nCores)	
 			} else {
@@ -259,6 +289,7 @@ chromothripsis = function(segFile,bedpeDir,
 				index1=paste0(bedpe[,bedpeChromCol1])==paste0(x)
 				index2=paste0(bedpe[,bedpeChromCol2])==paste0(x)
 				indexBedpe = which(index1|index2)
+				if(length(indexBedpe)==0) return(NULL)
 				# keep seg rows for this chms
 				indexSeg = which(paste0(subSeg[,chromCol])==paste0(x))
 				# check for chromothripsis
@@ -271,7 +302,9 @@ chromothripsis = function(segFile,bedpeDir,
 					chromCol1=bedpeChromCol1,
 					posCol1=bedpePosCol1,
 					chromCol2=bedpeChromCol2,
-					posCol2=bedpePosCol2)
+					posCol2=bedpePosCol2,
+					direction1col=direction1col,
+					direction2col=direction2col)
 				# just output regions that are chromothriptic
 				getRuns(chromScores,paste0(x),paste0(y),size)},simplify=FALSE)
 			}
