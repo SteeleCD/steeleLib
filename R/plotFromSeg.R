@@ -57,45 +57,100 @@ combineSegs = function(chromData,nMin=15)
 	}
 
 # plot a single chromosome
-plotFun = function(seg.mean,num.mark,seg.start,seg.end,
-		YLIM,colours)
+plotFun = function(seg.mean,num.mark=NULL,seg.start,seg.end,
+		YLIM,colours,highlightStarts,highlightEnds,chrom)
 	{
 	#scatterplot3d(z=seg.mean,y=num.mark,x=seg.position)
-	plot(NA,ylim=range(seg.mean),xlim=range(c(seg.start,seg.end)),col=colours[num.mark],xaxt="n")
+	plot(NA,ylim=range(seg.mean),xlim=range(c(seg.start,seg.end)),col=colours[num.mark],xaxt="n",main=chrom)
 	abline(h=0)
-	sapply(1:length(seg.mean),FUN=function(x) lines(x=c(seg.start[x],seg.end[x]),y=rep(seg.mean[x],2),col=colours[num.mark][x],lwd=3))
+	if(!is.null(num.mark))
+		{
+		sapply(1:length(seg.mean),FUN=function(x) lines(x=c(seg.start[x],seg.end[x]),y=rep(seg.mean[x],2),col=colours[num.mark][x],lwd=3))
+		} else {
+		sapply(1:length(seg.mean),FUN=function(x) lines(x=c(seg.start[x],seg.end[x]),y=rep(seg.mean[x],2),col=colours,lwd=3))
+		}
+	# higlight regions
+	if(length(highlightStarts)>0)
+		{
+		for(i in 1:length(highlightStarts))
+			{
+			polygon(x=c(highlightStarts[i],
+					highlightEnds[i],
+					highlightEnds[i],
+					highlightStarts[i]),
+				y=c(YLIM[2]+1,YLIM[2]+1,YLIM[1]-1,YLIM[1]-1),
+				col=rgb(0.1,0.1,0.1,0.1))
+			}
+		}
 	}
 
 # plot all chromosomes
 plotByChrom = function(segFile=NULL,segObj=NULL,dataDir,
-		outDir,fileName='segsByChrom.pdf')
+		outDir=NULL,fileName=NULL,combineSegs=FALSE,
+		sampleCol=2,chromCol=1,startCol=3,endCol=4,nMarkCol=NULL,segMeanCol=6,
+		plotAber=FALSE,highlightChroms=NULL,highlightStarts=NULL,highlightEnds=NULL)
 	{
 	library(copynumber)
 	if(!is.null(segFile)) data = read.table(paste0(dataDir,"/",segFile),head=TRUE,sep="\t")
 	if(!is.null(segObj)) data = segObj
 	# plot by chms
-	chms = unique(data[,2])
-	individual = unique(data[,1])
+	chms = unique(data[,chromCol])
+	individual = unique(data[,sampleCol])
 	# combine small segs
-	data = do.call(rbind,sapply(individual,FUN=function(x) do.call(rbind,sapply(chms,FUN=function(y) combineSegs(data[which(data[,1]==x&data[,2]==y),]),simplify=FALSE)),simplify=FALSE))
+	if(combineSegs)
+		{	
+		data = do.call(rbind,sapply(individual,FUN=function(x) do.call(rbind,sapply(chms,FUN=function(y) combineSegs(data[which(data[,sampleCol]==x&data[,chromCol]==y),]),simplify=FALSE)),simplify=FALSE))
+		} else {
+		data=seg
+		}
 	# colours
-	colours = colorRampPalette(c("red","green"))(max(data[,5]))
+	if(!is.null(nMarkCol)) 
+		{
+		colours = colorRampPalette(c("red","green"))(max(data[,nMarkCol]))
+		} else {
+		colours="black"
+		}
 	library(scatterplot3d)
 	# plot
-	pdf(paste0(outDir,'/',fileName))
+	if(!is.null(fileName)) pdf(paste0(outDir,'/',fileName))
 	sapply(individual,FUN=function(x) {
-		par(mfrow=c(4,6),mar=c(0,0,0,0))
+		par(mfrow=c(4,6),mar=c(1,2,2,0))
 		sapply(chms,FUN=function(y) {
 			print(paste0(x,":",y))
-			index = which(data[,1]==x&data[,2]==y)
-			plotFun(data[index,6],data[index,5],data[index,3],data[index,4],range(data[,6]),colours)
-		})})
-	dev.off()
-	data = cbind(data[,1:2],rep("q",times=nrow(data)),data[,3:ncol(data)])
+			if(!is.null(highlightChroms))
+				{
+				highlightIndex = which(highlightChroms==y)
+				}
+			index = which(data[,sampleCol]==x&data[,chromCol]==y)
+			if(!is.null(nMarkCol))
+				{
+				plotFun(data[index,segMeanCol],
+					data[index,nMarkCol],
+					data[index,startCol],
+					data[index,endCol],
+					range(data[,segMeanCol]),
+					colours,
+					highlightStarts=highlightStarts[highlightIndex],
+					highlightEnds=highlightEnds[highlightIndex],
+					chrom=y)
+				} else {
+				plotFun(seg.mean=data[index,segMeanCol],
+					seg.start=data[index,startCol],
+					seg.end=data[index,endCol],
+					YLIM=range(data[,segMeanCol]),
+					colours=colours,
+					highlightStarts=highlightStarts[highlightIndex],
+					highlightEnds=highlightEnds[highlightIndex],
+					chrom=y)
+				}
+			})
+		})
+	if(!is.null(fileName)) dev.off()
+	data = cbind(data[,c(sampleCol,chromCol)],rep("q",times=nrow(data)),data[,c(startCol,endCol,nMarkCol,segMeanCol)])
 	colnames(data) = c("sampleID","chrom","arm","start.pos","end.pos","n.probes","logR.mean")
-	pdf(paste0(outDir,'/copynumber.pdf'))
-	plotAberration(data,thres.gain=0.2)
-	dev.off()
+	if(!is.null(fileName)) pdf(paste0(outDir,'/copynumber.pdf'))
+	if(plotAber) plotAberration(data,thres.gain=0.2)
+	if(!is.null(fileName)) dev.off()
 	}
 	
 # wrapper for plotting CN heatmap

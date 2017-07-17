@@ -1,4 +1,4 @@
-# function to test whether a single chromosome has exponential segment lengths
+# function to test whether a single chromosome has exponential segment lengths from seg file
 segLengthsExponential = function(seg,startCol=3,endCol=4) 
   {
   breakpoints = sapply(1:(nrow(seg)-1),
@@ -6,8 +6,24 @@ segLengthsExponential = function(seg,startCol=3,endCol=4)
   seglengths = diff(breakpoints) # segment lengths
   # are segment lengths exponentially distributed?
   test = ks.test(seglengths, "pexp", 1/mean(seglengths)) # p>0.05 indicates that segLengths fit exponential distr
-  return(test$p.value) # p>0.05 indicates exponential  (suggesting chromothripsis)
+  return(test$p.value) # p<0.05 indicates not exponential  (suggesting chromothripsis)
   }
+
+# function to test whether a single chromosome has exponential breakpoint distances from bedpe
+breakpointsExponential = function(bedpe,chrom,chromCol1=1,posCol1=2,chromCol2=4,posCol2=5) 
+  {
+  # breakpoints
+  breakpoints1 = bedpe[which(bedpe[,chromCol1]==chrom),posCol1]
+  breakpoints2 = bedpe[which(bedpe[,chromCol2]==chrom),posCol2]
+  breakpoints=c(breakpoints1,breakpoints2)
+  # order breakpoints
+  breakpoints = sort(breakpoints)
+  diffs = diff(breakpoints)
+  # are segment lengths exponentially distributed?
+  test = ks.test(diffs, "pexp", 1/mean(diffs)) # p>0.05 indicates that segLengths fit exponential distr
+  return(test$p.value) # p<0.05 indicates not exponential  (suggesting chromothripsis)
+  }
+
 
 # randomness of DNA fragment joins
 # counts of +/+ -/- +/- -/+ should be random (1/4,1/4,1/4,1/4)
@@ -18,7 +34,7 @@ randomJoins = function(bedpe,direction1col=9,direction2col=10)
   if(length(counts)<4) counts = c(counts,rep(0,4-length(counts)))
   # goodness of fit test to multinomial
   test = chisq.test(counts,p=rep(0.25,4)) # p>0.05 indicates that counts fit multinomial distr
-  return(test$p.value) # p>0.05 indicates multinomial  (suggesting chromothripsis)
+  return(1-test$p.value) # p<0.95 indicates multinomial  (suggesting chromothripsis)
   }
 
 # randomness of DNA fragment order
@@ -47,7 +63,8 @@ randomOrder = function(bedpe,chromCol1=1,posCol1=2,chromCol2=4,posCol2=5,nSims=1
   # monte carlo simulations
   sims = replicate(nSims,abs(diff(sample(nrow(breakpoints),2))))
   # p value
-  sum(sims>indicesScore)/nSims # p>0.05 indicates random draw (suggesting chromothripsis)
+  pVal = sum(sims>indicesScore)/nSims # p>0.05 indicates random draw (suggesting chromothripsis)
+  return(1-pVal) # p<0.95 indicates random draw (suggesting chromothripsis)
   }
 
 # ability to walk chromosome
@@ -91,14 +108,16 @@ runSingle = function(bedpe,direction1col=9,direction2col=10,chromCol1=1,posCol1=
 	}
 
 # split into windows, then check for chromothripsis
-splitWindow = function(bedpe,seg,size=1e7,gap=1e6,chromCol=2,startCol=3,endCol=4,chromCol1=1,posCol1=2,chromCol2=4,posCol2=5,direction1col=9,direction2col=10)
+splitWindow = function(bedpe,seg,chrom,size=1e7,gap=1e6,chromCol=2,startCol=3,endCol=4,chromCol1=1,posCol1=2,chromCol2=4,posCol2=5,direction1col=9,direction2col=10)
 	{
-	if(nrow(seg)<3) return(NA)
-	# p value for exponential distribution of segments
-	P1 = segLengthsExponential(seg,
-		startCol=startCol,
-		endCol=endCol)
-	if(nrow(bedpe)==0) return(P1)
+	if(nrow(bedpe)<3) return(NA)
+	# p value for exponential distribution of breakpoints
+	P1 = breakpointsExponential(bedpe,
+			chrom=chrom,
+			chromCol1=chromCol1,
+			posCol1=posCol1,
+			chromCol2=chromCol2,
+			posCol2=posCol2) 
 	# get windows of size
 	chrom = paste0(unique(seg[,chromCol]))
 	chromSize = range(c(bedpe[which(paste0(bedpe[,chromCol1])==chrom),posCol1],
@@ -162,12 +181,35 @@ splitWindow = function(bedpe,seg,size=1e7,gap=1e6,chromCol=2,startCol=3,endCol=4
 	return(res)
 	}
 
+# function to combine overlapping regions
+combineRegions = function(regions,sampleCol=1,chromCol=2,startCol=3,endCol=4)
+	{
+	if(nrow(regions)<2) return(regions)
+	doOverlap=TRUE
+	while(doOverlap)
+		{
+		seqStrings = paste("chr",regions[,chromCol],":",regions[,startCol],"-",regions[,endCol])
+		seqGranges = as(seqStrings,"GRanges")
+		overlaps = findOverlaps(seqGranges,seqGranges)
+		doOverlap = length(overlaps@from)!=nrow(regions)
+		if(!doOverlap) break
+		overlapInfo = sapply(1:length(seqStrings),FUN=function(x) overlaps@to[which(overlaps@from==x)],simplify=FALSE)
+		newRegions = t(sapply(overlapInfo,FUN=function(x) c(unique(regions[x,sampleCol]),
+					unique(regions[x,chromCol]),
+					min(as.numeric(regions[x,c(startCol,endCol)])),
+					max(as.numeric(regions[x,c(startCol,endCol)]))
+					)))
+		regions = unique(newRegions)
+		}
+	return(regions)
+	}
+
 # function to get runs and clean output
 getRuns = function(chromScores,chrom,samp,size)
 	{
 	if(length(chromScores)>1)
 		{
-		chromBool = chromScores>0.05
+		chromBool = chromScores<0.05
 		if(!any(chromBool)) return(NULL)
 		runs = rle(chromBool)
 		ends = cumsum(runs$lengths)
@@ -175,13 +217,17 @@ getRuns = function(chromScores,chrom,samp,size)
 		windowStarts = as.numeric(names(chromBool)[starts[which(runs$values==TRUE)]])
 		windowEnds = as.numeric(names(chromBool)[ends[which(runs$values==TRUE)]])
 		windowEnds = windowEnds+size
-		return(cbind(samp,chrom,windowStarts,windowEnds))
+		windows = cbind(samp,chrom,windowStarts,windowEnds)
+		windows = combineRegions(windows) 
+		return(windows)
 		} else {
 		#return(cbind(samp,chrom))
 		# only return results if have looked at translocations
 		return(NULL)
 		}
 	}
+
+
 
 # read in a file
 readFile = function(file,head)
@@ -262,6 +308,7 @@ chromothripsis = function(segFile, # combined seg file
 				indexSeg = which(paste0(subSeg[,chromCol])==paste0(x))
 				# check for chromothripsis
 				chromScores = splitWindow(bedpe=bedpe[indexBedpe,],
+					chrom=paste0(x),
 					seg=subSeg[indexSeg,],
 					size=size,
 					chromCol=chromCol,
@@ -289,6 +336,7 @@ chromothripsis = function(segFile, # combined seg file
 				indexSeg = which(paste0(subSeg[,chromCol])==paste0(x))
 				# check for chromothripsis
 				chromScores = splitWindow(bedpe=bedpe[indexBedpe,],
+					chrom=paste0(x),
 					seg=subSeg[indexSeg,],
 					size=size,
 					chromCol=chromCol,
