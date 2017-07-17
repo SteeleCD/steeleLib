@@ -93,8 +93,9 @@ runSingle = function(bedpe,direction1col=9,direction2col=10,chromCol1=1,posCol1=
 # split into windows, then check for chromothripsis
 splitWindow = function(bedpe,seg,size=1e7,gap=1e6,chromCol=2,startCol=3,endCol=4,chromCol1=1,posCol1=2,chromCol2=4,posCol2=5,direction1col=9,direction2col=10)
 	{
+	if(nrow(seg)<3) return(NA)
 	# p value for exponential distribution of segments
-	P1 = steeleLib:::segLengthsExponential(seg,
+	P1 = segLengthsExponential(seg,
 		startCol=startCol,
 		endCol=endCol)
 	if(nrow(bedpe)==0) return(P1)
