@@ -1,5 +1,5 @@
 # function to test whether a single chromosome has exponential segment lengths from seg file
-segLengthsExponential = function(seg,startCol=3,endCol=4) 
+segLengthsExponential = function(seg,startCol=3,endCol=4,verbose=FALSE) 
   {
   breakpoints = sapply(1:(nrow(seg)-1),
                        FUN=function(i) (seg[i+1,startCol]+seg[i,endCol])/2)
@@ -10,7 +10,7 @@ segLengthsExponential = function(seg,startCol=3,endCol=4)
   }
 
 # function to test whether a single chromosome has exponential breakpoint distances from bedpe
-breakpointsExponential = function(bedpe,chrom,chromCol1=1,posCol1=2,chromCol2=4,posCol2=5) 
+breakpointsExponential = function(bedpe,chrom,chromCol1=1,posCol1=2,chromCol2=4,posCol2=5,verbose=FALSE) 
   {
   # breakpoints
   breakpoints1 = bedpe[which(bedpe[,chromCol1]==chrom),posCol1]
@@ -19,6 +19,14 @@ breakpointsExponential = function(bedpe,chrom,chromCol1=1,posCol1=2,chromCol2=4,
   # order breakpoints
   breakpoints = sort(breakpoints)
   diffs = diff(breakpoints)
+  if(verbose)
+	{
+	plot(x=jitter(c(rep(1,length(diffs)),rep(2,length(diffs))),factor=0.5),
+		y=c(diffs,rexp(length(diffs),1/mean(diffs))),
+		col=c(rep("black",length(diffs)),rep("gray",length(diffs))),
+		xlab="Obs/Exp",ylab="Distance between breakpoints")
+	legend("topright",legend=c("Obs.","Exp"),pch=1,col=c("black","gray"))
+	}
   # are segment lengths exponentially distributed?
   test = ks.test(diffs, "pexp", 1/mean(diffs)) # p>0.05 indicates that segLengths fit exponential distr
   return(test$p.value) # p<0.05 indicates not exponential  (suggesting chromothripsis)
@@ -27,11 +35,17 @@ breakpointsExponential = function(bedpe,chrom,chromCol1=1,posCol1=2,chromCol2=4,
 
 # randomness of DNA fragment joins
 # counts of +/+ -/- +/- -/+ should be random (1/4,1/4,1/4,1/4)
-randomJoins = function(bedpe,direction1col=9,direction2col=10)
+randomJoins = function(bedpe,direction1col=9,direction2col=10,verbose=FALSE)
   {
   joins = paste0(bedpe[,direction1col],bedpe[,direction2col])
   counts = table(joins)
-  if(length(counts)<4) counts = c(counts,rep(0,4-length(counts)))
+  if(length(counts)<4) 
+	{
+	counts = c(counts,rep(0,4-length(counts)))
+	possNames = c("++","+-","-+","--")
+	names(counts) = c(names(counts),possNames[which(!possNames%in%names(counts))])
+	}
+  if(verbose) barplot(rbind(counts,rep(sum(counts)/4,4)),beside=TRUE,legend.text=c("Obs.","Exp."))
   # goodness of fit test to multinomial
   test = chisq.test(counts,p=rep(0.25,4)) # p>0.05 indicates that counts fit multinomial distr
   return(1-test$p.value) # p<0.95 indicates multinomial  (suggesting chromothripsis)
