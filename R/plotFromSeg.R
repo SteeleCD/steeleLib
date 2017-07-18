@@ -146,11 +146,15 @@ plotByChrom = function(segFile=NULL,segObj=NULL,dataDir,
 			})
 		})
 	if(!is.null(fileName)) dev.off()
-	data = cbind(data[,c(sampleCol,chromCol)],rep("q",times=nrow(data)),data[,c(startCol,endCol,nMarkCol,segMeanCol)])
-	colnames(data) = c("sampleID","chrom","arm","start.pos","end.pos","n.probes","logR.mean")
-	if(!is.null(fileName)) pdf(paste0(outDir,'/copynumber.pdf'))
-	if(plotAber) plotAberration(data,thres.gain=0.2)
-	if(!is.null(fileName)) dev.off()
+	# abberation plot
+	if(plotAber)
+		{
+		data = cbind(data[,c(sampleCol,chromCol)],rep("q",times=nrow(data)),data[,c(startCol,endCol,nMarkCol,segMeanCol)])
+		colnames(data) = c("sampleID","chrom","arm","start.pos","end.pos","n.probes","logR.mean")
+		if(!is.null(fileName)) pdf(paste0(outDir,'/copynumber.pdf'))
+	 	plotAberration(data,thres.gain=0.2)
+		if(!is.null(fileName)) dev.off()
+		}
 	}
 	
 # wrapper for plotting CN heatmap
