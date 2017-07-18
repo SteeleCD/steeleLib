@@ -41,9 +41,10 @@ randomJoins = function(bedpe,direction1col=9,direction2col=10,verbose=FALSE)
   counts = table(joins)
   if(length(counts)<4) 
 	{
+	saveNames = names(counts)
 	counts = c(counts,rep(0,4-length(counts)))
 	possNames = c("++","+-","-+","--")
-	names(counts) = c(names(counts),possNames[which(!possNames%in%names(counts))])
+	names(counts) = c(saveNames,possNames[which(!possNames%in%names(counts))])
 	}
   if(verbose) barplot(rbind(counts,rep(sum(counts)/4,4)),beside=TRUE,legend.text=c("Obs.","Exp."))
   # goodness of fit test to multinomial
