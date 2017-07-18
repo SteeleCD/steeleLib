@@ -29,7 +29,7 @@ breakpointsExponential = function(bedpe,chrom,chromCol1=1,posCol1=2,chromCol2=4,
 	}
   # are segment lengths exponentially distributed?
   test = ks.test(diffs, "pexp", 1/mean(diffs)) # p>0.05 indicates that segLengths fit exponential distr
-  return(test$p.value) # p<0.05 indicates not exponential  (suggesting chromothripsis)
+  return(test$p.value<0.05) # low p (<0.05) indicates not exponential  (suggesting chromothripsis)
   }
 
 
@@ -49,7 +49,7 @@ randomJoins = function(bedpe,direction1col=9,direction2col=10,verbose=FALSE)
   if(verbose) barplot(rbind(counts,rep(sum(counts)/4,4)),beside=TRUE,legend.text=c("Obs.","Exp."))
   # goodness of fit test to multinomial
   test = chisq.test(counts,p=rep(0.25,4)) # p>0.05 indicates that counts fit multinomial distr
-  return(1-test$p.value) # p<0.95 indicates multinomial  (suggesting chromothripsis)
+  return(test$p.value>0.75) # high p (>0.05) indicates multinomial  (suggesting chromothripsis)
   }
 
 # randomness of DNA fragment order
@@ -79,7 +79,7 @@ randomOrder = function(bedpe,chromCol1=1,posCol1=2,chromCol2=4,posCol2=5,nSims=1
   sims = replicate(nSims,abs(diff(sample(nrow(breakpoints),2))))
   # p value
   pVal = sum(sims>indicesScore)/nSims # p>0.05 indicates random draw (suggesting chromothripsis)
-  return(1-pVal) # p<0.95 indicates random draw (suggesting chromothripsis)
+  return(pVal>0.75) # high p (>0.05) indicates random draw (suggesting chromothripsis)
   }
 
 # ability to walk chromosome
@@ -185,7 +185,8 @@ splitWindow = function(bedpe,seg,chrom,size=1e7,gap=1e6,chromCol=2,startCol=3,en
 			direction2col=direction2col)
 		if(!any(is.na(P))) 
 			{
-			return(fishersMethod(c(P1,P)))
+			#return(fishersMethod(c(P1,P))) #fishers method
+			return(sum(c(P1,P)>1)) # cutoff method - 2 tests must pass cutoff
 			} else {
 			return(NA)
 			}
@@ -224,7 +225,8 @@ getRuns = function(chromScores,chrom,samp,size)
 	{
 	if(length(chromScores)>1)
 		{
-		chromBool = chromScores<0.05
+		#chromBool = chromScores<0.05
+		chromBool = chromScores
 		if(!any(chromBool)) return(NULL)
 		runs = rle(chromBool)
 		ends = cumsum(runs$lengths)
