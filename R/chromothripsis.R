@@ -186,13 +186,13 @@ splitWindow = function(bedpe,seg,chrom,size=1e7,gap=1e6,chromCol=2,startCol=3,en
 		if(!any(is.na(P))) 
 			{
 			#return(fishersMethod(c(P1,P))) #fishers method
-			return(sum(c(P1,P)>1)) # cutoff method - 2 tests must pass cutoff
+			return(sum(c(P1,P))>1) # cutoff method - 2 tests must pass cutoff
 			} else {
 			return(NA)
 			}
 		})
 	if(all(is.na(res))) return(P1)
-	res[which(is.na(res))] = 0
+	res[which(is.na(res))] = FALSE
 	names(res) = split
 	return(res)
 	}

@@ -58,7 +58,7 @@ combineSegs = function(chromData,nMin=15)
 
 # plot a single chromosome
 plotFun = function(seg.mean,num.mark=NULL,seg.start,seg.end,
-		YLIM,colours,highlightStarts,highlightEnds,chrom)
+		YLIM,colours,highlightStarts,highlightEnds,fusionPos,chrom)
 	{
 	#scatterplot3d(z=seg.mean,y=num.mark,x=seg.position)
 	plot(NA,ylim=range(seg.mean),xlim=range(c(seg.start,seg.end)),col=colours[num.mark],xaxt="n",main=chrom)
@@ -82,13 +82,19 @@ plotFun = function(seg.mean,num.mark=NULL,seg.start,seg.end,
 				col=rgb(0.1,0.1,0.1,0.1))
 			}
 		}
+	# plot lines at fusions
+	if(length(fusionPos)>0)
+		{
+		abline(v=fusionPos,lty=2)
+		}
 	}
 
 # plot all chromosomes
 plotByChrom = function(segFile=NULL,segObj=NULL,dataDir,
 		outDir=NULL,fileName=NULL,combineSegs=FALSE,
 		sampleCol=2,chromCol=1,startCol=3,endCol=4,nMarkCol=NULL,segMeanCol=6,
-		plotAber=FALSE,highlightChroms=NULL,highlightStarts=NULL,highlightEnds=NULL)
+		plotAber=FALSE,highlightChroms=NULL,highlightStarts=NULL,highlightEnds=NULL,
+		fusionChroms=NULL,fusionPos=NULL)
 	{
 	library(copynumber)
 	if(!is.null(segFile)) data = read.table(paste0(dataDir,"/",segFile),head=TRUE,sep="\t")
@@ -121,9 +127,14 @@ plotByChrom = function(segFile=NULL,segObj=NULL,dataDir,
 				{
 				highlightIndex = which(highlightChroms==y)
 				}
+			if(!is.null(fusionChroms))
+				{
+				fusionIndex = which(fusionChroms==y)
+				}
 			index = which(data[,sampleCol]==x&data[,chromCol]==y)
 			if(!is.null(nMarkCol))
 				{
+				# coloured by number of markers
 				plotFun(data[index,segMeanCol],
 					data[index,nMarkCol],
 					data[index,startCol],
@@ -132,8 +143,10 @@ plotByChrom = function(segFile=NULL,segObj=NULL,dataDir,
 					colours,
 					highlightStarts=highlightStarts[highlightIndex],
 					highlightEnds=highlightEnds[highlightIndex],
+					fusionPos=fusionPos[fusionIndex],
 					chrom=y)
 				} else {
+				# coloured black
 				plotFun(seg.mean=data[index,segMeanCol],
 					seg.start=data[index,startCol],
 					seg.end=data[index,endCol],
@@ -141,6 +154,7 @@ plotByChrom = function(segFile=NULL,segObj=NULL,dataDir,
 					colours=colours,
 					highlightStarts=highlightStarts[highlightIndex],
 					highlightEnds=highlightEnds[highlightIndex],
+					fusionPos=fusionPos[fusionIndex],
 					chrom=y)
 				}
 			})
