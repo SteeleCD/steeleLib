@@ -123,13 +123,19 @@ plotByChrom = function(segFile=NULL,segObj=NULL,dataDir,
 		par(mfrow=c(4,6),mar=c(1,2,2,0))
 		sapply(chms,FUN=function(y) {
 			print(paste0(x,":",y))
+			# any highlighted regions in this chms?
 			if(!is.null(highlightChroms))
 				{
 				highlightIndex = which(highlightChroms==y)
-				}
+				} else {
+				highlightIndex = c()
+				} 
+			# any fusions in this chms?
 			if(!is.null(fusionChroms))
 				{
 				fusionIndex = which(fusionChroms==y)
+				} else {
+				fusionIndex = c()
 				}
 			index = which(data[,sampleCol]==x&data[,chromCol]==y)
 			if(!is.null(nMarkCol))

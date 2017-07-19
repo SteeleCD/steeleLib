@@ -49,7 +49,7 @@ randomJoins = function(bedpe,direction1col=9,direction2col=10,verbose=FALSE)
   if(verbose) barplot(rbind(counts,rep(sum(counts)/4,4)),beside=TRUE,legend.text=c("Obs.","Exp."))
   # goodness of fit test to multinomial
   test = chisq.test(counts,p=rep(0.25,4)) # p>0.05 indicates that counts fit multinomial distr
-  return(test$p.value>0.75) # high p (>0.05) indicates multinomial  (suggesting chromothripsis)
+  return(test$p.value>0.6) # high p (>0.05) indicates multinomial  (suggesting chromothripsis)
   }
 
 # randomness of DNA fragment order
@@ -79,7 +79,7 @@ randomOrder = function(bedpe,chromCol1=1,posCol1=2,chromCol2=4,posCol2=5,nSims=1
   sims = replicate(nSims,abs(diff(sample(nrow(breakpoints),2))))
   # p value
   pVal = sum(sims>indicesScore)/nSims # p>0.05 indicates random draw (suggesting chromothripsis)
-  return(pVal>0.75) # high p (>0.05) indicates random draw (suggesting chromothripsis)
+  return(pVal>0.6) # high p (>0.05) indicates random draw (suggesting chromothripsis)
   }
 
 # ability to walk chromosome
@@ -125,7 +125,7 @@ runSingle = function(bedpe,direction1col=9,direction2col=10,chromCol1=1,posCol1=
 # split into windows, then check for chromothripsis
 splitWindow = function(bedpe,seg,chrom,size=1e7,gap=1e6,chromCol=2,startCol=3,endCol=4,chromCol1=1,posCol1=2,chromCol2=4,posCol2=5,direction1col=9,direction2col=10)
 	{
-	if(nrow(bedpe)<3) return(NA)
+	if(nrow(bedpe)<20) return(NA) # lower limit on number of fusions
 	# p value for exponential distribution of breakpoints
 	P1 = breakpointsExponential(bedpe,
 			chrom=chrom,
@@ -305,7 +305,8 @@ chromothripsis = function(segFile, # combined seg file
 		subSeg = seg[which(sampleIndex),]
 		if(is.null(chromsToRun))
 			{
-			chromosomes = unique(subSeg[,chromCol])
+			chromosomes = unique(c(paste0(bedpe[,bedpeChromCol1]),
+						paste0(bedpe[,bedpeChromCol2])))
 			} else {
 			chromosomes = chromsToRun
 			} 
@@ -323,6 +324,7 @@ chromothripsis = function(segFile, # combined seg file
 				if(length(indexBedpe)==0) return(NULL)
 				# keep seg rows for this chms
 				indexSeg = which(paste0(subSeg[,chromCol])==paste0(x))
+				if(length(indexSeg)==0) return(NULL)
 				# check for chromothripsis
 				chromScores = splitWindow(bedpe=bedpe[indexBedpe,],
 					chrom=paste0(x),
@@ -351,6 +353,7 @@ chromothripsis = function(segFile, # combined seg file
 				if(length(indexBedpe)==0) return(NULL)
 				# keep seg rows for this chms
 				indexSeg = which(paste0(subSeg[,chromCol])==paste0(x))
+				if(length(indexSeg)==0) return(NULL)
 				# check for chromothripsis
 				chromScores = splitWindow(bedpe=bedpe[indexBedpe,],
 					chrom=paste0(x),
