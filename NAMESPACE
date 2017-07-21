@@ -54,10 +54,6 @@ export(preDMR)
 export(DMRinfo)
 # bumps.R
 export(getBumpLimsWindow)
-# chromothripsis.R
-export(chromothripsis)
-# genomeDoubling.R
-export(genomeDoubling)
 # survival.R
 export(plotCox)
 # geneCN.R
