@@ -1,41 +1,18 @@
 #useDynLib(steeleLib)
 # assignFolders.R
 export(assignFolders)
-# GISTIC.R
-export(champToGistic)
-export(segToMarkers)
-export(conumeeToGISTIC)
-export(sequenzaToGistic)
 # combineFiles.R
 export(combineFiles)
-#export(runConumee)
-# createMarkersFile.R
-export(getMarkers)
-# DMRs.R
-export(plotVolcano)
-export(plotDMR)
 # installBioc.R
 export(install.bioc)
 # clustering.R
 export(kmeansAIC)
 export(runHclust)
-# myCHAMP.R
-export(mychamp.CNA)
-# ChAMP.R
-export(champPipeline)
 # PCAfuns.R
 export(runPCA)
 export(plotPCA)
-# plotFromSeg.R
-export(plotByChrom)
-export(plotAbber)
-# plotHighlighted.R
-export(highlightInds)
 # runHclustPCA.R
 export(runHCPC)
-# runMinfiEPIC.R
-export(runMinfi)
-export(runDMR)
 # runPCA.R
 export(fitKmeans)
 export(fitHclust)
@@ -45,15 +22,6 @@ export(invlogit)
 # betaDist.R
 export(betaMean)
 export(betaVar)
-# refactor.R
-export(refactor)
-# minfi.R
-export(minfiPipeline)
-# DMRanalysis.R
-export(preDMR)
-export(DMRinfo)
-# bumps.R
-export(getBumpLimsWindow)
 # survival.R
 export(plotCox)
 # geneCN.R
@@ -64,23 +32,12 @@ export(getGeneLOH)
 export(getGeneAmpDel)
 # plotLM.R
 export(plotLM)
-# PMDs.R
-export(definePMDs)
 
-importFrom('conumee','CNV.create_anno','CNV.load','CNV.fit',
-	'CNV.bin','CNV.detail','CNV.segment','CNV.genomeplot')
-importFrom('minfi','read.metharray.sheet','read.metharray.exp',
-	'preprocessRaw','mapToGenome','qcReport',
-	'preprocessFunnorm','getM','getBeta','dropLociWithSnps',
-	'pData','dmpFinder','bumphunter','detectionP','getManifest',
-	'getAnnotation')
 importFrom('GenomicRanges','granges')
 importFrom('stats','model.matrix')
 importFrom('sva','sva','ComBat')
 importFrom('doParallel','registerDoParallel')
-importFrom('copynumber','plotAberration')
 importFrom('FactoMineR','HCPC')
-import('CopyNumber450kData')
 import('org.Hs.eg.db')
 import('AnnotationDbi')
 importFrom("parallel","mclapply","detectCores")

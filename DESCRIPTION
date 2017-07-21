@@ -1,10 +1,10 @@
 Package: steeleLib 
-Title: Useful functions for (epi)genomics analysis
-Description: Useful functions for (epi)genomics analysis.
-Depends: R (>= 3.1.0), gtools, FactoMineR, sva, GenomicRanges, minfi, conumee, doParallel, copynumber
+Title: Utility functions to make life easier.
+Description: Utility functions to make life easier.
+Depends: R (>= 3.1.0), gtools, FactoMineR, sva, GenomicRanges, doParallel
 Suggests: limma, DNAcopy 
-Imports: FactoMineR, sva, GenomicRanges, ChAMP, minfi, conumee, doParallel, copynumber
-Version: 0.2.0
+Imports: FactoMineR, sva, GenomicRanges, doParallel
+Version: 0.3.0
 Date: 27/09/2016
 Author: Christopher Steele
 Maintainer: Christopher Steele <steelecd2110@gmail.com>
