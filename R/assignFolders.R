@@ -8,7 +8,7 @@ assignFolders = function()
 		patholDir='/Volumes/grp13$/CI_POGB_Pathology/'
 		ucbtcdsDir='/Volumes/ucbtcdsh$/'
 		commonDir='/Volumes/common$/'
-		grpDir='/Volumes/grp11$/CI_Pathology_Steele/'
+		grpDir='/Volumes/lgrp10$/CI_Pathology_Steele/'
 		dropDir='/Users/c.steele/Dropbox/'
 		} else if(user=='chris') {
 		# WORK
