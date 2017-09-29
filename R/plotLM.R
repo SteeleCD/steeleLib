@@ -1,5 +1,5 @@
 # function to fit simple linear model and plot confidence intervals
-plotLM = function(x,y,xlim=NULL,ylim=NULL,legloc="topleft",...)
+plotLM = function(x,y,xlim=NULL,ylim=NULL,legloc="topleft",equalityLine=TRUE,...)
         {
         # linear fit
         fit = lm(y~x)
@@ -19,7 +19,7 @@ plotLM = function(x,y,xlim=NULL,ylim=NULL,legloc="topleft",...)
         # plot fit
         abline(fit,lwd=2)
         # plot x=y
-        abline(a=0,b=1,lty=2)
+	if(equalityLine) abline(a=0,b=1,lty=2)
         # plot intervals
         polygon(x=c(newx,rev(newx)),
                 y=c(pred.conf[,"lwr"],rev(pred.conf[,"upr"])),
@@ -30,10 +30,23 @@ plotLM = function(x,y,xlim=NULL,ylim=NULL,legloc="topleft",...)
                 col=rgb(0.5,0.5,0.5,0.2),
                 border=NA)
         # plot legend
+	legendText = c("Observations","Linear fit","95% CI","95% PI")
+	legendLty = c(NA,1,NA,NA)
+	legendLwd = c(NA,2,NA,NA)
+	legendPch = c(4,NA,15,15)
+	legendCol = c(1,1,rgb(0.5,0.5,0.5,0.4),rgb(0.5,0.5,0.5,0.2))
+	if(equalityLine)
+		{
+		legendText = c(legendText,"x=y")
+		legendLty = c(legendLty,2)
+		legendLwd = c(legendLwd,1)
+		legendPch = c(legendPch,NA)
+		legendCol = c(legendCol,1)
+		}
         legend(legloc,
-                legend=c("Observations","Linear fit","x=y","95% CI","95% PI"),
-                lty=c(NA,1,2,NA,NA),
-                lwd=c(NA,2,1,NA,NA),
-                pch=c(4,NA,NA,15,15),
-                col=c(1,1,1,rgb(0.5,0.5,0.5,0.4),rgb(0.5,0.5,0.5,0.2)))
+                legend=legendText,
+                lty=legendLty,
+                lwd=legendLwd,
+                pch=legendPch,
+                col=legendCol)
         }
