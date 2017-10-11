@@ -49,4 +49,5 @@ plotLM = function(x,y,xlim=NULL,ylim=NULL,legloc="topleft",equalityLine=TRUE,...
                 lwd=legendLwd,
                 pch=legendPch,
                 col=legendCol)
+	return(fit)
         }
