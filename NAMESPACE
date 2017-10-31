@@ -24,6 +24,7 @@ export(betaMean)
 export(betaVar)
 # survival.R
 export(plotCox)
+export(plotAFT)
 # geneCN.R
 export(getGeneInfo)
 export(getGeneCN)
@@ -40,4 +41,5 @@ importFrom('doParallel','registerDoParallel')
 importFrom('FactoMineR','HCPC')
 import('org.Hs.eg.db')
 import('AnnotationDbi')
+import('flexsurv')
 importFrom("parallel","mclapply","detectCores")
