@@ -1,5 +1,5 @@
 # function to fit simple linear model and plot confidence intervals
-plotLM = function(x,y,xlim=NULL,ylim=NULL,legloc="topleft",equalityLine=TRUE,...)
+plotLM = function(x,y,xlim=NULL,ylim=NULL,legloc="topleft",equalityLine=TRUE,plotP=TRUE,...)
         {
         # linear fit
         fit = lm(y~x)
@@ -29,6 +29,20 @@ plotLM = function(x,y,xlim=NULL,ylim=NULL,legloc="topleft",equalityLine=TRUE,...
                 y=c(pred.pred[,"lwr"],rev(pred.pred[,"upr"])),
                 col=rgb(0.5,0.5,0.5,0.2),
                 border=NA)
+	# add p value
+	if(plotP)
+		{
+		P = round(summary(fit)$coefficients[2,4],3)
+		if(P<0.001)
+			{
+			P = paste0("P<0.001")
+			} else {
+			P = paste0("P=",P)
+			}
+		text(max(x,na.rm=TRUE)-(abs(diff(range(x,na.rm=TRUE)))/10),
+			min(y,na.rm=TRUE)+(abs(diff(range(y,na.rm=TRUE)))/10),
+			labels=P)
+		}
         # plot legend
 	legendText = c("Observations","Linear fit","95% CI","95% PI")
 	legendLty = c(NA,1,NA,NA)
