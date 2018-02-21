@@ -11,7 +11,12 @@ genNewData = function(x,nRep,whichKeep=NULL)
 			}
 		return(factor(rep(levels(x)[whichKeep],nRep),levels=levels(x)))
 		} else {
-		return(rep(mean(x,na.rm=TRUE),nRep))
+		if(is.null(whichKeep))
+			{
+			return(rep(mean(x,na.rm=TRUE),nRep))
+			} else {
+			return(rep(whichKeep,nRep))
+			}
 		}
 	}
 

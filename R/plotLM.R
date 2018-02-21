@@ -1,5 +1,5 @@
 # function to fit simple linear model and plot confidence intervals
-plotLM = function(x,y,xlim=NULL,ylim=NULL,legloc="topleft",equalityLine=TRUE,plotP=TRUE,...)
+plotLM = function(x,y,xlim=NULL,ylim=NULL,legloc="topleft",equalityLine=TRUE,plotP=TRUE,doLegend=TRUE,...)
         {
         # linear fit
         fit = lm(y~x)
@@ -43,25 +43,28 @@ plotLM = function(x,y,xlim=NULL,ylim=NULL,legloc="topleft",equalityLine=TRUE,plo
 			min(y,na.rm=TRUE)+(abs(diff(range(y,na.rm=TRUE)))/10),
 			labels=P)
 		}
-        # plot legend
-	legendText = c("Observations","Linear fit","95% CI","95% PI")
-	legendLty = c(NA,1,NA,NA)
-	legendLwd = c(NA,2,NA,NA)
-	legendPch = c(4,NA,15,15)
-	legendCol = c(1,1,rgb(0.5,0.5,0.5,0.4),rgb(0.5,0.5,0.5,0.2))
-	if(equalityLine)
+        # plot legenda
+	if(doLegend)
 		{
-		legendText = c(legendText,"x=y")
-		legendLty = c(legendLty,2)
-		legendLwd = c(legendLwd,1)
-		legendPch = c(legendPch,NA)
-		legendCol = c(legendCol,1)
+		legendText = c("Observations","Linear fit","95% CI","95% PI")
+		legendLty = c(NA,1,NA,NA)
+		legendLwd = c(NA,2,NA,NA)
+		legendPch = c(4,NA,15,15)
+		legendCol = c(1,1,rgb(0.5,0.5,0.5,0.4),rgb(0.5,0.5,0.5,0.2))
+		if(equalityLine)
+			{
+			legendText = c(legendText,"x=y")
+			legendLty = c(legendLty,2)
+			legendLwd = c(legendLwd,1)
+			legendPch = c(legendPch,NA)
+			legendCol = c(legendCol,1)
+			}
+	        legend(legloc,
+	                legend=legendText,
+	                lty=legendLty,
+	                lwd=legendLwd,
+	                pch=legendPch,
+	                col=legendCol)
 		}
-        legend(legloc,
-                legend=legendText,
-                lty=legendLty,
-                lwd=legendLwd,
-                pch=legendPch,
-                col=legendCol)
 	return(fit)
         }
