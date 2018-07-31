@@ -10,6 +10,7 @@ assignFolders = function()
 		commonDir='/Volumes/common$/'
 		grpDir='/Volumes/lgrp10$/CI_Pathology_Steele/'
 		dropDir='/Users/c.steele/Dropbox/'
+		homeDir='/Users/c.steele/'
 		} else if(user=='chris') {
 		# WORK
 		patholDir='/media/pathology/CI_POGB_Pathology/'
@@ -18,6 +19,7 @@ assignFolders = function()
 		grpDir='/media/grp11/CI_Pathology_Steele/'
 		grpDir2='/run/user/1000/gvfs/smb-share:server=file03.ucl.ac.uk,share=grp11$/CI_Pathology_Steele/'
 		dropDir='/home/chris/Dropbox/'
+		homeDir='/home/chris/'
 		} else {
 		# LEGION
 		scratchDir='/scratch/scratch/ucbtcds'
@@ -28,7 +30,8 @@ assignFolders = function()
 			ucbtcdsDir=ucbtcdsDir,
 			commonDir=commonDir,
 			grpDir=grpDir,
-			dropDir=dropDir)
+			dropDir=dropDir,
+			homeDir=homeDir)
 		if(user=="chris") out = append(out,list(grpDir2=grpDir2))
 		return(out)
 		} else {

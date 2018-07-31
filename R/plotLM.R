@@ -1,6 +1,16 @@
 # function to fit simple linear model and plot confidence intervals
-plotLM = function(x,y,xlim=NULL,ylim=NULL,legloc="topleft",equalityLine=TRUE,plotP=TRUE,doLegend=TRUE,...)
+plotLM = function(x,y,xlim=NULL,ylim=NULL,legloc="topleft",equalityLine=TRUE,plotP=TRUE,doLegend=TRUE,LOG="",...)
         {
+	#if(grepl("x",LOG))
+	#	{
+	#	savex=x
+	#	x=log(x)
+	#	} 
+	#if(grepl("y",LOG))
+	#	{
+	#	savey=y
+	#	y=log(y)
+	#	} 
         # linear fit
         fit = lm(y~x)
         # set predict limits
@@ -14,12 +24,20 @@ plotLM = function(x,y,xlim=NULL,ylim=NULL,legloc="topleft",equalityLine=TRUE,plo
         pred.conf = predict(fit, data.frame(x=newx), interval="confidence")
         # prediction intervals
         pred.pred = predict(fit, data.frame(x=newx), interval="prediction") 
+	#if(grepl("x",LOG))
+	#	{
+	#	x=savex
+	#	} 
+	#if(grepl("y",LOG))
+	#	{
+	#	y=savey
+	#	} 
         # plot data
-        plot(x,y,pch=4,xlim=xlim,ylim=ylim,...)
+        plot(x,y,pch=4,xlim=xlim,ylim=ylim,log=LOG,...)
         # plot fit
-        abline(fit,lwd=2)
+        abline(fit,lwd=2,untf=TRUE)
         # plot x=y
-	if(equalityLine) abline(a=0,b=1,lty=2)
+	if(equalityLine) abline(a=0,b=1,lty=2,untf=TRUE)
         # plot intervals
         polygon(x=c(newx,rev(newx)),
                 y=c(pred.conf[,"lwr"],rev(pred.conf[,"upr"])),
